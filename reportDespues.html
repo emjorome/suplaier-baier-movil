@@ -209,20 +209,17 @@
         if (node.innerHTML === "(expand all)") {
           node.innerHTML = "(collapse all)";
     
-          for (var x = 0; x < rows.length; x++) {
-            var row = rows[x];
+          for (const row of rows) {
             row.className = "details-row";
           }
         } else {
           node.innerHTML = "(expand all)";
     
-          for (var x = 0; x < rows.length; x++) {
-            var row = rows[x];
+          for (const row of rows) {
             row.className = "details-row hidden";
           }
         }
-      }
-    
+      } 
       function toggleDetails(node) {
         var parentRow = node.parentNode.parentNode;
         var detailsRow = parentRow.nextSibling;
@@ -239,296 +236,103 @@
   <div class="eslint-report">
     <h1>ESLint Results</h1>
 
-      <h2>Summary</h2>
-      
-      <div class="table-wrapper">
-        <div class="table-column">
-          <table class="summary-table">
-              <tbody>
-                <tr>
-                  <td>Errors</td>
-                  <td>0</td>
-                </tr>
-                <tr>
-                  <td>Warnings</td>
-                  <td>0</td>
-                </tr>
-              </tbody>
-              <tfoot>
-                <tr>
-                  <td>Total alerts</td>
-                  <td>0</td>
-                </tr>
-              </tfoot>
-          </table>
-        </div>
-        <div class="table-column">
-          <table class="summary-table">
-              <tbody>
-                <tr>
-                  <td>Files with errors</td>
-                  <td>0</td>
-                </tr>
-                <tr>
-                  <td>Files with only warnings</td>
-                  <td>0</td>
-                </tr>
-                <tr>
-                  <td>Clean files</td>
-                  <td>113</td>
-                </tr>
-              </tbody>
-              <tfoot>
-                <tr>
-                  <td>Total files linted</td>
-                  <td>113</td>
-                </tr>
-              </tfoot>
-          </table>
-        </div>
+    <h2>Summary</h2>
+
+    <div class="table-wrapper">
+      <div class="table-column">
+        <table class="summary-table">
+
+          <thead>
+            <tr>
+              <th>Label</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr>
+              <td>Errors</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <td>Warnings</td>
+              <td>0</td>
+            </tr>
+          </tbody>
+
+          <tfoot>
+            <tr>
+              <td>Total alerts</td>
+              <td>0</td>
+            </tr>
+          </tfoot>
+
+        </table>
       </div>
 
+      <div class="table-column">
+        <table class="summary-table">
 
-      <h2>File Breakdown
-          <a id="toggle" href="javascript:;" onclick="toggleAllDetails(this)" class="toggle-all-link">(expand all)</a></h2>
-      
-      <table class="report-table">
-        <thead>
-          <tr>
-            <th>File</th>
-            <th class="error-col">Errors</th>
-            <th class="warning-col">Warnings</th>
-          </tr>
-        </thead>
-        <tbody><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\App.js</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\Main.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\apiUrl.js</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\auth\components\RegisterValidationSchema.js</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\auth\components\loginValidationSchema.js</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\auth\context\AuthContext.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\auth\context\AuthProvider.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\auth\context\authReducer.js</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\auth\pages\LoginPage.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\auth\pages\RegistroCompradorPage.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\auth\pages\RegistroProveedorPage.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\auth\pages\TipoRegistroPage.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\auth\types\types.js</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\components\CargarCategorias.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\components\DetalleOrden.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\components\EtiquetaEstadoOferta.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\components\ListCategoria.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\components\Notificaciones_List.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\components\SearchInput.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\components\SplashScreen.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\components\dateOptions.js</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\compradores\components\AppCompBar.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\compradores\components\DemandaItem.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\compradores\components\DemandasList.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\compradores\components\DetalleProductoC.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\compradores\components\MetodoPagoModal.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\compradores\components\NavigationBar.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\compradores\components\OfertaItem.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\compradores\components\OfertasList.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\compradores\components\OrdenItem.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\compradores\components\OrdenesList.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\compradores\components\PropuestaItem.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\compradores\components\PropuestasList.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\compradores\components\ResumenDemanda.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\compradores\components\ResumenProducto.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\compradores\components\TabButton.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\compradores\components\TabProfile.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\compradores\components\UnirseOfertaAhoraModal.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\compradores\components\UnirseOfertaModal.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\compradores\components\crearDemandaValidationSchema.js</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\compradores\components\crearProductoValidationSchema.js</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\compradores\components\tabs.js</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\compradores\hooks\useOfertasTodos.js</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\compradores\hooks\useOrdenes.js</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\compradores\logics\Search_Logic.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\compradores\pages\Busqueda_Comprador.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\compradores\pages\CrearDemandaPage.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\compradores\pages\CrearProductoPage.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\compradores\pages\DemandasCompradorPage.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\compradores\pages\HomeCompradorPage.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\compradores\pages\Notificaciones_Comprador.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\compradores\pages\OrdenesCompradorPage.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\compradores\pages\ProfilePage.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\compradores\routes\CompradorRoutes.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\compradores\routes\HomeRoutes.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\compradores\routes\MainComprador.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\compradores\routes\OrdenesRoutes.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\compradores\routes\ProfileRoutes.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\data\ofertas.js</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\hooks\DemandasDataProvider.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\hooks\OfertasDataProvider.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\components\AppProvBar.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\components\ButtonWithText.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\components\CancelarOferta.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\components\CerrarOferta.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\components\ConfCancelOferta.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\components\DemandaItem.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\components\DemandasList.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\components\DetalleProducto.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\components\DetalleProductoC.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\components\HistorialCard.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\components\HistorialModal.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\components\MetodoPagoModal.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\components\NavigationBar.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\components\OfertaItem.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\components\OfertasList.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\components\OrdenItem.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\components\OrdenesList.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\components\ProgressBar.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\components\ResumenOferta.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\components\ResumenProducto.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\components\StarsQualification.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\components\TabButton.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\components\TabProfile.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\components\UnirseOfertaModal.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\components\crearOfertaValidationSchema.js</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\components\crearProductoValidationSchema.js</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\components\tabs.js</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\hooks\useOfertas.js</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\hooks\useOrdenes.js</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\logics\Search_Logic.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\pages\CrearOfertaPage.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\pages\CrearProductoPage.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\pages\DemandasProveedorPage.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\pages\HomeProveedorPage.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\pages\MyProfile.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\pages\NotificationsProveedorPage.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\pages\OrdenesProveedorPage.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\pages\SearchProveedorPage.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\routes\HomeRoutes.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\routes\MainProveedor.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\routes\OrdenesRoutes.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\routes\ProfileRoutes.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\proveedores\routes\ProveedorRoutes.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\router\AppRouter.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\router\PrivateRoutes.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\router\PublicRoutes.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\styles\StyledSelectList.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\styles\StyledText.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\styles\StyledTextInput.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\styles\UploadImage.jsx</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\theme.js</td>
-              <td>0</td>
-              <td>0</td></tr><tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\utils\notifications.js</td>
-              <td>0</td>
-              <td>0</td></tr></tbody>
-      </table>
+          <thead>
+            <tr>
+              <th>Label</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr>
+              <td>Files with errors</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <td>Files with only warnings</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <td>Clean files</td>
+              <td>113</td>
+            </tr>
+          </tbody>
+
+          <tfoot>
+            <tr>
+              <td>Total files linted</td>
+              <td>113</td>
+            </tr>
+          </tfoot>
+
+        </table>
+      </div>
+    </div>
+
+    <h2>File Breakdown
+      <button id="toggle" type="button" onclick="toggleAllDetails(this)" class="toggle-all-link">
+        (expand all)
+      </button>
+    </h2>
+
+    <table class="report-table">
+      <thead>
+        <tr>
+          <th>File</th>
+          <th class="error-col">Errors</th>
+          <th class="warning-col">Warnings</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\App.js</td><td>0</td><td>0</td></tr>
+        <tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\Main.jsx</td><td>0</td><td>0</td></tr>
+        <tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\apiUrl.js</td><td>0</td><td>0</td></tr>
+
+       
+        <tr class="success"><td>C:\Users\Ricardo\Desktop\Espol\S8\IS2\suplaier-baier-movil\src\utils\notifications.js</td><td>0</td><td>0</td></tr>
+      </tbody>
+
+    </table>
 
   </div>
 </body>
+
 </html>

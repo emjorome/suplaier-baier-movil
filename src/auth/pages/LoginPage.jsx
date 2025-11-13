@@ -11,6 +11,7 @@ import theme from "../../theme";
 import StyledText from "../../styles/StyledText";
 import StyledTextInput from "../../styles/StyledTextInput";
 import Animated, { FadeInDown } from "react-native-reanimated";
+import PropTypes from "prop-types";
 
 const initialValues = {
   user: "",
@@ -27,6 +28,7 @@ const FormikInputValue = ({
   ...props
 }) => {
   const [field, meta, helpers] = useField(name);
+
   return (
     <View>
       <Octicons
@@ -36,12 +38,14 @@ const FormikInputValue = ({
         color={theme.colors.purple1}
       />
       <StyledText style={styles.textInputLabel}>{label}</StyledText>
+
       <StyledTextInput
         error={meta.error}
         value={field.value}
         onChangeText={(value) => helpers.setValue(value)}
         {...props}
       />
+
       {isPassword && (
         <TouchableOpacity
           style={styles.rightIcon}
@@ -54,6 +58,7 @@ const FormikInputValue = ({
           />
         </TouchableOpacity>
       )}
+
       {meta.error && (
         <StyledText style={styles.errorText} fontSize="body">
           {meta.error}
@@ -61,6 +66,16 @@ const FormikInputValue = ({
       )}
     </View>
   );
+};
+
+// ⭐ PropTypes para FormikInputValue
+FormikInputValue.propTypes = {
+  name: PropTypes.string.isRequired,
+  icon: PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired,
+  isPassword: PropTypes.bool,
+  hidePassword: PropTypes.bool,
+  setHidePassword: PropTypes.func,
 };
 
 const LoginPage = () => {
@@ -75,15 +90,17 @@ const LoginPage = () => {
       usuario: username,
       pass: password,
     };
-    const resp = await global.fetch(`${apiUrl}/auth`, {
+
+    // ⭐ SonarQube fix: usar globalThis en vez de global
+    const resp = await globalThis.fetch(`${apiUrl}/auth`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(body),
     });
+
     const data = await resp.json();
-    // console.log("peticion");
 
     if (data.length === 0) {
       return null;
@@ -94,25 +111,14 @@ const LoginPage = () => {
 
   const onSubmitLogin = (values) => {
     setDisabled(true);
+
     getAuthResponse(values.user.trim(), values.password.trim()).then((user) => {
       setDisabled(false);
+
       if (user) {
         login(user);
         setCredentialsIncorrect(false);
-        // switch (user.Rol) {
-        //   // comprador
-        //   case "comprador":
-        //     navigate("/comprador/home", {
-        //       replace: true,
-        //     });
-        //     break;
-        //   // proveedor
-        //   case "proveedor":
-        //     navigate("/proveedor/home", {
-        //       replace: true,
-        //     });
-        //     break;
-        // }
+
         navigate("/splash", {
           replace: true,
         });
@@ -121,6 +127,7 @@ const LoginPage = () => {
       }
     });
   };
+
   return (
     <>
       <Animated.View
@@ -132,6 +139,7 @@ const LoginPage = () => {
           source={require("../../../public/suplaier_horizontal_degradado_recortado.png")}
           style={styles.pageLogo}
         />
+
         <StyledText
           color="tertiary"
           fontWeight="bold"
@@ -140,6 +148,7 @@ const LoginPage = () => {
         >
           Iniciar sesión
         </StyledText>
+
         <StyledText
           color="tertiary"
           fontWeight="normal"
@@ -148,116 +157,124 @@ const LoginPage = () => {
         >
           Para comenzar inicia sesión con tu usuario y contraseña
         </StyledText>
+
         <Formik
           validationSchema={loginValidationSchema}
           initialValues={initialValues}
-          onSubmit={(values) => onSubmitLogin(values)}
+          onSubmit={onSubmitLogin}
         >
-          {({ handleSubmit }) => {
-            return (
-              <View style={styles.form}>
-                {credentialsIncorrect && (
-                  <View style={styles.containerCredentialsIncorrect}>
-                    <StyledText style={styles.errorText} fontSize="body">
-                      Usuario y/o contraseña incorrectos
-                    </StyledText>
-                  </View>
-                )}
-                <FormikInputValue
-                  testID="LoginPage.InputUser"
-                  name="user"
-                  icon="person"
-                  placeholder="ejemplo_proveedor.004"
-                  placeholderTextColor={theme.colors.gray1}
-                  label="Usuario"
-                />
-                <FormikInputValue
-                  testID="LoginPage.InputPassword"
-                  name="password"
-                  icon="lock"
-                  placeholder="**********"
-                  placeholderTextColor={theme.colors.gray1}
-                  secureTextEntry={hidePassword}
-                  label="Contraseña"
-                  isPassword
-                  hidePassword={hidePassword}
-                  setHidePassword={setHidePassword}
-                />
+          {({ handleSubmit }) => (
+            <View style={styles.form}>
+              {credentialsIncorrect && (
+                <View style={styles.containerCredentialsIncorrect}>
+                  <StyledText style={styles.errorText} fontSize="body">
+                    Usuario y/o contraseña incorrectos
+                  </StyledText>
+                </View>
+              )}
+
+              <FormikInputValue
+                testID="LoginPage.InputUser"
+                name="user"
+                icon="person"
+                placeholder="ejemplo_proveedor.004"
+                placeholderTextColor={theme.colors.gray1}
+                label="Usuario"
+              />
+
+              <FormikInputValue
+                testID="LoginPage.InputPassword"
+                name="password"
+                icon="lock"
+                placeholder="**********"
+                placeholderTextColor={theme.colors.gray1}
+                secureTextEntry={hidePassword}
+                label="Contraseña"
+                isPassword
+                hidePassword={hidePassword}
+                setHidePassword={setHidePassword}
+              />
+
+              <TouchableOpacity
+                style={{
+                  padding: 15,
+                  backgroundColor: disabled
+                    ? "gray"
+                    : theme.colors.lightblue1,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  borderRadius: 5,
+                  marginVertical: 5,
+                  height: 60,
+                  testID: "LoginPage.LoginButton",
+                }}
+                onPress={handleSubmit}
+                disabled={disabled}
+              >
+                <StyledText
+                  fontSize="subheading"
+                  color="secondary"
+                  fontWeight="bold"
+                >
+                  Iniciar sesión
+                </StyledText>
+              </TouchableOpacity>
+
+              <View style={styles.borderLine} />
+
+              <TouchableOpacity
+                testID="LoginPage.RegisterButton"
+                style={styles.registerButton}
+                onPress={() =>
+                  navigate("/signup_type", {
+                    replace: true,
+                  })
+                }
+              >
+                <StyledText
+                  fontSize="subheading"
+                  color="secondary"
+                  fontWeight="bold"
+                >
+                  Registrarse
+                </StyledText>
+              </TouchableOpacity>
+
+              <View style={styles.extraView}>
+                <StyledText
+                  fontSize="subheading"
+                  color="primary"
+                  style={styles.extraText}
+                >
+                  ¿Aún no tienes cuenta?,{" "}
+                </StyledText>
 
                 <TouchableOpacity
-                  style={{
-                    padding: 15,
-                    backgroundColor: disabled
-                      ? "gray"
-                      : theme.colors.lightblue1,
-                    justifyContent: "center",
-                    alignItems: "center",
-                    borderRadius: 5,
-                    marginVertical: 5,
-                    height: 60,
-                    testID: "LoginPage.LoginButton",
-                  }}
-                  onPress={handleSubmit}
-                  disabled={disabled}
-                >
-                  <StyledText
-                    fontSize="subheading"
-                    color="secondary"
-                    fontWeight="bold"
-                  >
-                    Iniciar sesión
-                  </StyledText>
-                </TouchableOpacity>
-                <View style={styles.borderLine} />
-                <TouchableOpacity
-                  testID="LoginPage.RegisterButton"
-                  style={styles.registerButton}
-                  onPress={() => {
+                  style={styles.extraTextLink}
+                  onPress={() =>
                     navigate("/signup_type", {
                       replace: true,
-                    });
-                  }}
+                    })
+                  }
                 >
-                  <StyledText
-                    fontSize="subheading"
-                    color="secondary"
-                    fontWeight="bold"
-                  >
-                    Registrarse
+                  <StyledText fontSize="subheading" style={styles.textLink}>
+                    ¡Regístrate!
                   </StyledText>
                 </TouchableOpacity>
-                <View style={styles.extraView}>
-                  <StyledText
-                    fontSize="subheading"
-                    color="primary"
-                    style={styles.extraText}
-                  >
-                    ¿Aún no tienes cuenta?,{" "}
-                  </StyledText>
-                  <TouchableOpacity
-                    style={styles.extraTextLink}
-                    onPress={() => {
-                      navigate("/signup_type", {
-                        replace: true,
-                      });
-                    }}
-                  >
-                    <StyledText fontSize="subheading" style={styles.textLink}>
-                      ¡Regístrate!
-                    </StyledText>
-                  </TouchableOpacity>
-                </View>
-
-                {/* <Button onPress={handleSubmit} title='Iniciar sesión'/> */}
               </View>
-            );
-          }}
+            </View>
+          )}
         </Formik>
       </Animated.View>
+
       <StatusBar style="light" />
     </>
   );
 };
+
+// ⭐ PropTypes para LoginPage (aunque no tiene props, se deja vacío)
+LoginPage.propTypes = {};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -314,15 +331,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     zIndex: 1,
   },
-  submitButton: {
-    padding: 15,
-    backgroundColor: theme.colors.lightblue1,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 5,
-    marginVertical: 5,
-    height: 60,
-  },
   registerButton: {
     padding: 15,
     backgroundColor: theme.colors.lightgreen,
@@ -336,10 +344,6 @@ const styles = StyleSheet.create({
     borderBottomColor: theme.colors.gray1,
     borderBottomWidth: StyleSheet.hairlineWidth,
     marginVertical: 15,
-  },
-  bottomText: {
-    marginTop: 10,
-    textAlign: "center",
   },
   errorText: {
     color: theme.colors.red,
@@ -366,3 +370,4 @@ const styles = StyleSheet.create({
 });
 
 export default LoginPage;
+

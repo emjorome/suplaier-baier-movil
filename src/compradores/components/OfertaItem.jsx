@@ -25,9 +25,18 @@ const OfertaItem = (props) => {
   let actualProductos;
 
   const updateProgresoOferta = () => {
+    if (!props || props.Maximo === undefined || props.ActualProductos === undefined) {
+      return;
+    }
+
     maximo = parseInt(props.Maximo);
     actualProductos = parseInt(props.ActualProductos);
-    setProgresoOferta(actualProductos / maximo);
+
+    if (maximo > 0) {
+      setProgresoOferta(actualProductos / maximo);
+    } else {
+      setProgresoOferta(0);
+    }
   };
 
   const checkEstaUnidoOferta = async () => {
@@ -102,8 +111,8 @@ const OfertaItem = (props) => {
           source={
             datosProd?.urlImg != null && datosProd?.urlImg != "no-img.jpeg"
               ? {
-                  uri: datosProd?.urlImg,
-                }
+                uri: datosProd?.urlImg,
+              }
               : require("../../../public/no-img.jpeg")
           }
           style={styles.imageContainer}

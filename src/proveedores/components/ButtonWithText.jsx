@@ -1,56 +1,79 @@
 import React from "react";
-import { TouchableOpacity, Text } from "react-native";
+import { TouchableOpacity, Text, StyleSheet } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
+import { theme } from "../../theme";
 
 export const ButtonWithText = ({
   anyfunction,
-  title,
-  color = "red",
-  colorTexto = "#FFFFFF",
+  title = "",
+  color,
+  colorTexto,
   icon = "",
-  disabled,
+  disabled = false,
+  style,
   ...props
-  // width = 150,
 }) => {
+
+  // Lógica de colores: Si está deshabilitado usa gris, si no, usa el color prop o el primario (Morado)
+  const backgroundColor = disabled 
+    ? theme.colors.disabled 
+    : (color || theme.colors.primary);
+
+  const textColor = colorTexto || theme.colors.textSecondary;
+
   return (
     <TouchableOpacity
       activeOpacity={0.8}
       onPress={anyfunction}
-      style={{
-        backgroundColor: color,
-        marginVertical: 14,
-        alignItems: "center",
-        justifyContent: "center",
-        shadowColor: "#000",
-        shadowOffset: {
-          width: 0,
-          height: 2,
-        },
-        shadowOpacity: 0.23,
-        shadowRadius: 2.62,
-        elevation: 4,
-        borderRadius: title.length > 0 ? 10 : 2,
-        alignSelf: "center",
-        flexDirection: "row",
-        padding: 5,
-      }}
       disabled={disabled}
+      style={[
+        styles.button, 
+        { 
+          backgroundColor: backgroundColor,
+          // Si tiene texto es redondeado (píldora), si es solo icono es más cuadrado
+          borderRadius: title.length > 0 ? theme.borderRadius.m : theme.borderRadius.s,
+        },
+        style // Permite sobreescribir estilos desde fuera
+      ]}
       {...props}
     >
-      {icon.length > 0 && <Icon name={icon} size={26} color="#FFFFFF" />}
+      {/* Renderizado del Icono */}
+      {icon.length > 0 && (
+        <Icon 
+          name={icon} 
+          size={24} 
+          color={textColor} 
+          // Margen derecho solo si hay texto al lado
+          style={{ marginRight: title.length > 0 ? theme.spacing.s : 0 }} 
+        />
+      )}
+
+      {/* Renderizado del Texto */}
       {title.length > 0 && (
-        <Text
-          style={{
-            fontSize: 15,
-            marginHorizontal: 10,
-            marginVertical: 10,
-            textAlign: "center",
-            color: colorTexto,
-          }}
-        >
+        <Text style={[styles.text, { color: textColor }]}>
           {title}
         </Text>
       )}
     </TouchableOpacity>
   );
 };
+
+const styles = StyleSheet.create({
+  button: {
+    marginVertical: theme.spacing.m,
+    alignItems: "center",
+    justifyContent: "center",
+    alignSelf: "center",
+    flexDirection: "row",
+    paddingVertical: theme.spacing.s,
+    paddingHorizontal: theme.spacing.m,
+    minWidth: 60,
+    // Importamos la sombra estándar del tema
+    ...theme.shadows.medium,
+  },
+  text: {
+    fontSize: theme.fontSizes.body,
+    fontWeight: theme.fontWeights.bold,
+    textAlign: "center",
+  }
+});

@@ -1,64 +1,131 @@
 const theme = {
-bottomBar:{
-    primary:'#4A3797',
-    secondary: '#404040',
-    textPrimary: '#fff',
-    iconPrimary: '#fff'
-},
-appBar:{
-    primary:'#4A3797',
-    secondary: '#404040',
-    textPrimary: '#fff',
-    iconPrimary: '#fff'
-},
-colors:{
-    textPrimary: '#000000',
-    textSecondary: '#ffffff',
-    textTertiary: '#4A3797',
-    textPurple: '#4A3797',
-    primary: '#404040',
-    secondary: '#404040', 
-    secondaryLight: '#8d8d8d',
-    lightblue: '#49BFEC',
-    lightblue1: '#49A3DB',
-    lightblue2: '#3DB0DC',
-    lightgreen: '#03D5AE',
-    purple: '#4A3797',
-    purple1: '#5359D1',
-    purple2:'#733CC6',
-    purple3: '#4A31A8',
-    lightGray: '#F5F5F5',
-    lightGray2: '#EEEEEE',
-    lightGray3: "#DCDCDC",
-    gray: '#EFEFEF',
-    gray1: '#A0A0A0',
-    gray2: '#DBDBDB',
-    gray3:'#ACADAD',
-    red: '#FC327A',
-    red1: '#FB6363',
-    red2:'#FC4D4D',
-    blue:'#49A3DB',
-    darkblue:'#49859D',
-    green: '#00D022',
-    green1:'#2EBF8C'
-},
+    spacing: {
+        xs: 4,
+        s: 8,
+        m: 16,
+        l: 24,
+        xl: 32,
+        xxl: 40,
+        gutterHorizontal: 60,
+        gutterVertical: 80
+    },
 
-fontSizes:{
-    body:14,
-    subheading:16,
-    title:30,
-    bigTitle:35,
-    subtitle:20,
-},
+    borderRadius: {
+        s: 8,
+        m: 12,
+        l: 16,
+        round: 9999,
+    },
 
-fonts:{
-    main: 'System'
-},
+    shadows: {
+        soft: {
+            shadowColor: "#2D3748",
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 3.84,
+            elevation: 2,
+        },
+        medium: {
+            shadowColor: "#1A202C",
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.15,
+            shadowRadius: 6,
+            elevation: 5,
+        }
+    },
 
-fontWeights: {
-    normal: '400',
-    bold: '700'
+    appBar:{
+        primary: '#5D3FD3',
+        secondary: '#2D3748',
+        textPrimary: '#ffffff',
+        iconPrimary: '#ffffff'
+    },
+
+    bottomBar:{
+        primary: '#5D3FD3',
+        secondary: '#2D3748',
+        textPrimary: '#ffffff',
+        iconPrimary: '#ffffff'
+    },
+
+    colors: {
+        primary:      '#5D3FD3',
+        primaryLight: '#8066E0',
+        primaryDark:  '#3D258A',
+
+        secondary:      '#2D3748',
+        secondaryLight: '#718096',
+        secondaryDark:  '#1A202C',
+
+        tertiary:      '#319795',
+        tertiaryLight: '#81E6D9',
+        tertiaryDark:  '#285E61',
+
+        success: '#2F855A',
+        error:   '#E53E3E',
+        warning: '#D69E2E',
+        info:    '#3182CE',
+        
+        background:      '#FFFFFF',
+        backgroundLight: '#F7FAFC',
+        inputBackground: '#EDF2F7',
+        border:          '#E2E8F0',
+        disabled:        '#CBD5E0',
+        
+        textGray:       '#718096',
+        textGrayDark:   '#4A5568',
+        textGrayDarker: '#2D3748',
+
+        surface: '#FFFFFF',
+
+        tags: {
+            green:     '#38A169',
+            blue:      '#3182CE',
+            red:       '#E53E3E',
+            purple:    '#805AD5',
+            lightblue: '#0BC5EA',
+            grey:      '#718096',
+        },
+
+        textPrimary:   '#2D3748',
+        textSecondary: '#ffffff',
+        
+        lightblue:  '#3182CE',
+        lightblue1: '#3182CE',
+        lightblue2: '#BEE3F8',
+        
+        lightgreen: '#2F855A',
+        green:      '#38A169',
+        
+        purple:  '#5D3FD3',
+        purple2: '#3D258A',
+        
+        red:  '#E53E3E',
+        red1: '#FED7D7',
+        
+        gray:  '#E2E8F0',
+        gray1: '#718096',
+    },
+
+    fontSizes: {
+        body: 16,
+        subheading: 20,
+        small: 14,
+        title: 28,
+        bigTitle: 34,
+        caption: 12
+    },
+
+    fonts: {
+        main: 'System', 
+        bold: 'System'
+    },
+
+    fontWeights: {
+        normal: '400',
+        bold: '700'
+    }
 }
-}
 
-export default theme
+export default theme;
+export { theme };

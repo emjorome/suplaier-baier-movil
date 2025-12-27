@@ -25,6 +25,9 @@ const styles = StyleSheet.create({
   colorLightBlue: {
     color: theme.colors.lightblue1,
   },
+  colorTextGray: {
+    color: theme.colors.textGray,
+  },
   bold: {
     fontWeight: theme.fontWeights.bold,
   },
@@ -42,6 +45,12 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: theme.fontSizes.subtitle,
+  },
+  small: {
+    fontSize: theme.fontSizes.small,
+  },
+  body: {
+    fontSize: theme.fontSizes.body,
   },
 });
 
@@ -61,10 +70,13 @@ export default function StyledText({
     color === "tertiary" && styles.colorTertiary,
     color === "purple" && styles.colorPurple,
     color === "lightblue" && styles.colorLightBlue,
+    color === "textGray" && styles.colorTextGray,
     fontSize === "subheading" && styles.subheading,
     fontSize === "title" && styles.title,
     fontSize === "subtitle" && styles.subtitle,
     fontSize === "bigtitle" && styles.bigtitle,
+    fontSize === "small" && styles.small,
+    fontSize === "body" && styles.body,
     fontWeight === "bold" && styles.bold,
     fontWeight === "normal" && styles.normal,
     style,

@@ -1,6 +1,7 @@
 import { NativeRouter } from 'react-router-native';
 import Main from './Main.jsx'
 import { AuthProvider } from './src/auth/context/AuthProvider.jsx';
+import { RewardProvider } from './src/context/RewardContext.jsx';
 import { registerForPushNotificationsAsync, sendTokenToServer } from './src/utils/notifications.js'; 
 import { useEffect } from 'react';
 import { LogBox } from "react-native"
@@ -19,9 +20,11 @@ export default function App() {
   }, []);
   return ( 
   <AuthProvider>
-    <NativeRouter>
-      <Main />
-    </NativeRouter>
+    <RewardProvider>
+      <NativeRouter>
+        <Main />
+      </NativeRouter>
+    </RewardProvider>
   </AuthProvider>
   );
 }

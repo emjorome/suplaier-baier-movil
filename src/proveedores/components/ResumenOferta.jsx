@@ -48,7 +48,7 @@ export const ResumenOferta = ({
       FechaLimite: fechaFormateada,
       Estado: 1,
       ValorUProducto: values.pmin,
-      ValorUInstantaneo: values.pmax,
+      ValorUInstantaneo: values.idValorInst === "conInst" ? values.pmax : 0,
     };
 
     await fetch(`${apiUrl}/ofertas`, {
@@ -149,12 +149,22 @@ export const ResumenOferta = ({
             </StyledText>
             <StyledText color="primary">{values.pmin}$</StyledText>
           </View>
-          <View style={styles.soloContainerRow}>
-            <StyledText color="purple" fontWeight="bold">
-              Precio instantáneo:{" "}
-            </StyledText>
-            <StyledText color="primary">{values.pmax}$</StyledText>
-          </View>
+          {values.idValorInst === "conInst" && (
+            <View style={styles.soloContainerRow}>
+              <StyledText color="purple" fontWeight="bold">
+                Precio instantáneo:{" "}
+              </StyledText>
+              <StyledText color="primary">{values.pmax}$</StyledText>
+            </View>
+          )}
+          {values.idValorInst === "sinInst" && (
+            <View style={styles.soloContainerRow}>
+              <StyledText color="purple" fontWeight="bold">
+                Valor instantáneo:{" "}
+              </StyledText>
+              <StyledText color="primary">Sin precio instantáneo</StyledText>
+            </View>
+          )}
           <View style={styles.soloContainer}>
             <StyledText color="purple" fontWeight="bold">
               Descripción:{" "}

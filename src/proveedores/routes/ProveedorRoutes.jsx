@@ -34,7 +34,7 @@ const ProveedorRoutes = ({
 
             <HomeRoutes />
             {location.pathname == "/proveedor/home" && (
-              <Navigate to="/proveedor/home/ofertas" />
+              <Navigate to="/proveedor/home/dashboard" />
             )}
             <NavigationBar />
           </>

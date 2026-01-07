@@ -5,6 +5,9 @@ import theme from "../../theme";
 import { RadioButton } from "react-native-paper";
 import { apiUrl } from "../../../apiUrl";
 import { useData } from "../../hooks/OfertasDataProvider";
+import { useDescuentos } from "../hooks/DescuentosDataProvider"; 
+import { useRecompensas } from "../../hooks/RecompensasDataProvider"; 
+
 export const MetodoPagoModal = ({
   isvisibleMetodoPagoModal,
   valortotal,
@@ -12,9 +15,12 @@ export const MetodoPagoModal = ({
   oncloseReservado,
   dataproducto,
   contador,
+  descuentoSeleccionado,
 }) => {
   const [checked, setChecked] = React.useState("");
   const { getOfertasTodos } = useData();
+  const { refreshDescuentos } = useDescuentos();
+  const { refreshBalance } = useRecompensas();
   const [disabled, setDisabled] = useState(false);
 
   const actualizarOferta = async () => {
@@ -23,6 +29,7 @@ export const MetodoPagoModal = ({
       NuevoActualProductos:
         parseInt(dataproducto.actualProductos) + parseInt(contador),
     };
+    
     await fetch(`${apiUrl}/ofertas`, {
       method: "PATCH",
       headers: {
@@ -34,16 +41,24 @@ export const MetodoPagoModal = ({
         if (!response.ok) {
           throw new Error("La solicitud no fue exitosa");
         }
+        
         getOfertasTodos();
+        refreshDescuentos();
+        refreshBalance();
+
+        const mensajeTipo = checked === "Reserva" 
+          ? "Reserva" 
+          : "Pago Anticipado";
 
         Alert.alert(
-          "El pago de tipo Reserva se ha realizado con éxito!",
-          "Se ha unido correctamente a la oferta",
+          "¡Éxito!",
+          `El pago de tipo ${mensajeTipo} se ha realizado con éxito. Te has unido correctamente a la oferta`,
           [
             {
               text: "Aceptar",
               onPress: () => {
                 setDisabled(false);
+                setChecked("");
                 oncloseReservado();
               },
             },
@@ -70,6 +85,11 @@ export const MetodoPagoModal = ({
   };
 
   const crearCompraIndividual = async () => {
+    // Determinar el método de pago y tipo de compra
+    const metodoPago = checked === "Reserva" ? "reserva" : "anticipado";
+    const tipoCompra = checked === "Reserva" ? "normal" : "anticipada";
+    const pagadoAProveedor = checked === "Pago Anticipado"; // Si es anticipado, ya está pagado
+
     const body = {
       IdComprador: dataproducto.IdUsuario,
       IdProveedor: dataproducto.proveedor.IdUsuario,
@@ -79,9 +99,10 @@ export const MetodoPagoModal = ({
       Descripcion: "",
       Observacion: "",
       IdEstado: dataproducto.estadoOferta.IdEstadosOferta,
-      MetodoPago: "reserva",
-      PagadoAProveedor: false,
-      TipoCompra: "normal",
+      MetodoPago: metodoPago,
+      PagadoAProveedor: pagadoAProveedor,
+      TipoCompra: tipoCompra,
+      IdOpcionDescuento: descuentoSeleccionado?.IdOpcion || null,
     };
 
     await fetch(`${apiUrl}/compras`, {
@@ -116,97 +137,129 @@ export const MetodoPagoModal = ({
   };
 
   const postpago = () => {
-    if (checked === "Reserva") {
+    if (!checked) {
       Alert.alert(
-        "Efectuando Pago con " + checked,
-        "$ " + valortotal,
-        [
-          {
-            text: "Aceptar",
-            onPress: () => {
-              crearCompraIndividual();
-            },
-          },
-        ],
-        { cancelable: false }
+        "Selecciona un método de pago",
+        "Por favor selecciona 'Reserva' o 'Pago Anticipado' para continuar"
       );
+      setDisabled(false);
+      return;
     }
+
+    const mensajeTipo = checked === "Reserva" 
+      ? "Reserva (pagarás al completarse la oferta)" 
+      : "Pago Anticipado (pagas ahora)";
+
+    Alert.alert(
+      `Efectuando ${checked}`,
+      `${mensajeTipo}\n\nTotal a pagar: $${valortotal.toFixed(2)}`,
+      [
+        {
+          text: "Cancelar",
+          style: "cancel",
+          onPress: () => setDisabled(false),
+        },
+        {
+          text: "Confirmar",
+          onPress: () => {
+            crearCompraIndividual();
+          },
+        },
+      ],
+      { cancelable: false }
+    );
   };
+
   return (
     <Modal transparent visible={isvisibleMetodoPagoModal} animationType="slide">
-      <View
-        style={{
-          backgroundColor: "#ffffff",
-          alignItems: "center",
-          marginHorizontal: "10%",
-          marginTop: "50%",
-          shadowColor: "#000",
-          shadowOffset: {
-            width: 0,
-            height: 2,
-          },
-          shadowOpacity: 0.23,
-          shadowRadius: 2.62,
-          elevation: 4,
-          borderRadius: 15,
-        }}
-      >
-        <View
-          style={{
-            width: "100%",
-            height: "7%",
-            backgroundColor: "#9434DB",
-            borderTopStartRadius: 15,
-            borderTopEndRadius: 15,
-          }}
-        />
-        <Text style={{ color: "black", margin: 10, fontWeight: "bold" }}>
-          Seleccione Metodo de Pago:
-        </Text>
-        <View style={{ alignItems: "center" }}>
-          <Image
-            source={{
-              uri: "https://1000marcas.net/wp-content/uploads/2019/12/logo-Paypal.png",
-            }}
-            style={{ width: 250, height: 100 }}
-          />
-        </View>
-        <View style={{ alignContent: "flex-start" }}>
-          {/* <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <RadioButton
-              value="Pago anticipado"
-              status={checked === "Pago anticipado" ? "checked" : "unchecked"}
-              onPress={() => setChecked("Pago anticipado")}
+      <View style={styles.overlay}>
+        <View style={styles.modal}>
+          <View style={styles.header} />
+          
+          <Text style={styles.titulo}>
+            Seleccione Método de Pago:
+          </Text>
+
+          {/* Mostrar descuento aplicado */}
+          {descuentoSeleccionado && (
+            <View style={styles.descuentoBox}>
+              <Text style={styles.descuentoTexto}>
+                ✅ Descuento aplicado: {descuentoSeleccionado.Nombre || descuentoSeleccionado.codigo}
+              </Text>
+              <Text style={styles.descuentoValor}>
+                ({descuentoSeleccionado.PorcentajeDescuento || descuentoSeleccionado.Porcentaje}% de descuento)
+              </Text>
+            </View>
+          )}
+
+          <View style={{ alignItems: "center", marginVertical: 10 }}>
+            <Image
+              source={{
+                uri: "https://1000marcas.net/wp-content/uploads/2019/12/logo-Paypal.png",
+              }}
+              style={{ width: 250, height: 100, resizeMode: 'contain' }}
             />
-            <Text>Pago anticipado</Text>
-          </View> */}
-          <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <RadioButton
-              value="Reserva"
-              status={checked === "Reserva" ? "checked" : "unchecked"}
-              onPress={() => setChecked("Reserva")}
-            />
-            <Text>Reserva</Text>
           </View>
-        </View>
-        <View style={styles.botonesContainer}>
-          <ButtonWithText
-            anyfunction={() => {
-              // eslint-disable-next-line no-unused-expressions, no-sequences
-              setChecked(""), oncloseMetodoPago();
-            }}
-            title="Cancelar"
-            color={theme.colors.red}
-          />
-          <ButtonWithText
-            anyfunction={() => {
-              setDisabled(true);
-              postpago();
-            }}
-            title="Continuar"
-            color={disabled ? "gray" : theme.colors.lightblue1}
-            disabled={disabled}
-          />
+
+          <View style={styles.opcionesContainer}>
+            {/* Opción: Pago Anticipado */}
+            <View style={styles.opcionRow}>
+              <RadioButton
+                value="Pago Anticipado"
+                status={checked === "Pago Anticipado" ? "checked" : "unchecked"}
+                onPress={() => setChecked("Pago Anticipado")}
+                color={theme.colors.blue}
+              />
+              <View style={styles.opcionTexto}>
+                <Text style={styles.opcionTitulo}>Pago Anticipado</Text>
+                <Text style={styles.opcionDescripcion}>
+                  Pagas ahora y recibes tu producto cuando la oferta cierre
+                </Text>
+              </View>
+            </View>
+
+            {/* Opción: Reserva */}
+            <View style={styles.opcionRow}>
+              <RadioButton
+                value="Reserva"
+                status={checked === "Reserva" ? "checked" : "unchecked"}
+                onPress={() => setChecked("Reserva")}
+                color={theme.colors.blue}
+              />
+              <View style={styles.opcionTexto}>
+                <Text style={styles.opcionTitulo}>Reserva</Text>
+                <Text style={styles.opcionDescripcion}>
+                  Reservas tu lugar y pagas cuando la oferta se complete
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.totalBox}>
+            <Text style={styles.totalTexto}>
+              Total a pagar: <Text style={styles.totalValor}>${valortotal.toFixed(2)}</Text>
+            </Text>
+          </View>
+
+          <View style={styles.botonesContainer}>
+            <ButtonWithText
+              anyfunction={() => {
+                setChecked("");
+                oncloseMetodoPago();
+              }}
+              title="Cancelar"
+              color={theme.colors.red}
+            />
+            <ButtonWithText
+              anyfunction={() => {
+                setDisabled(true);
+                postpago();
+              }}
+              title="Continuar"
+              color={disabled ? "gray" : theme.colors.lightblue1}
+              disabled={disabled}
+            />
+          </View>
         </View>
       </View>
     </Modal>
@@ -214,12 +267,17 @@ export const MetodoPagoModal = ({
 };
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: "#ffffff",
+  overlay: {
     flex: 1,
-    padding: "5%",
-    margin: "3%",
-    marginTop: "20%",
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modal: {
+    backgroundColor: "#ffffff",
+    alignItems: "center",
+    width: '90%',
+    maxHeight: '85%',
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -230,113 +288,91 @@ const styles = StyleSheet.create({
     elevation: 4,
     borderRadius: 15,
   },
-
-  tituloContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+  header: {
+    width: "100%",
+    height: 30,
+    backgroundColor: "#9434DB",
+    borderTopStartRadius: 15,
+    borderTopEndRadius: 15,
   },
-  textName: { margin: 5 },
-  iconBehave: {
-    padding: 14,
+  titulo: {
+    color: "black",
+    margin: 15,
+    fontWeight: "bold",
+    fontSize: 18,
   },
-  firstContainer: {
-    padding: 5,
-    borderWidth: 1,
-    borderColor: theme.colors.lightGray3,
-    flexDirection: "row",
-    alignItems: "center",
+  descuentoBox: {
+    backgroundColor: '#e8f5e9',
+    padding: 12,
     borderRadius: 8,
+    marginHorizontal: 20,
+    marginBottom: 10,
+    width: '90%',
   },
-  imageContainer: { width: "30%", height: 90, resizeMode: "contain" },
-  starsContainer: { alignItems: "center", width: "70%" },
-  secondContainer: { marginVertical: 10, flexDirection: "row" },
-  secondFirstContainer: {
-    width: "55%",
-    padding: 5,
+  descuentoTexto: {
+    color: '#2e7d32',
+    fontWeight: '600',
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  descuentoValor: {
+    color: '#2e7d32',
+    fontSize: 12,
+    textAlign: 'center',
+    marginTop: 4,
+  },
+  opcionesContainer: {
+    width: '90%',
+    paddingVertical: 10,
+  },
+  opcionRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginBottom: 15,
+    paddingVertical: 10,
+    paddingHorizontal: 10,
     borderWidth: 1,
-    borderColor: theme.colors.lightGray3,
-    borderTopLeftRadius: 8,
-    borderBottomLeftRadius: 8,
+    borderColor: '#e0e0e0',
+    borderRadius: 8,
+    backgroundColor: '#fafafa',
   },
-  secondsecondContainer: {
-    width: "45%",
-    padding: 5,
-    borderWidth: 1,
-    borderColor: theme.colors.lightGray3,
-    borderTopRightRadius: 8,
-    borderBottomRightRadius: 8,
+  opcionTexto: {
+    flex: 1,
+    marginLeft: 10,
   },
-  // precioInstaContainer: { marginVertical: 10, flexDirection: "row" },
-  precioInstContainerSub: {
+  opcionTitulo: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 4,
+  },
+  opcionDescripcion: {
+    fontSize: 12,
+    color: '#666',
+    lineHeight: 16,
+  },
+  totalBox: {
+    backgroundColor: '#f5f5f5',
+    padding: 12,
+    borderRadius: 8,
+    marginHorizontal: 20,
     marginVertical: 10,
-    width: "100%",
-    padding: 5,
-    borderWidth: 1,
-    borderColor: theme.colors.lightGray3,
-    borderRadius: 8,
-    flexDirection: "row",
+    width: '90%',
   },
-  unidadesFechaContainer: {
-    marginVertical: 10,
-    flexDirection: "row",
-    width: "100%",
+  totalTexto: {
+    fontSize: 16,
+    textAlign: 'center',
+    color: '#333',
   },
-  unidadesContainer: {
-    width: "48%",
-    padding: 5,
-    borderWidth: 1,
-    borderColor: theme.colors.lightGray3,
-    borderTopLeftRadius: 8,
-    borderBottomLeftRadius: 8,
-  },
-  fechaCierreContainer: {
-    width: "52%",
-    padding: 5,
-    borderWidth: 1,
-    borderColor: theme.colors.lightGray3,
-    borderTopRightRadius: 8,
-    borderBottomRightRadius: 8,
-  },
-  descripcionContainer: {
-    marginVertical: 10,
-    flexDirection: "row",
-    width: "100%",
-  },
-  descripcionSubContainer: {
-    width: "100%",
-    padding: 5,
-    borderWidth: 1,
-    borderColor: theme.colors.lightGray3,
-    borderRadius: 8,
-  },
-  progesoContainer: { marginVertical: 10, flexDirection: "row" },
-  progresoSubContainer: {
-    width: "100%",
-    padding: 5,
-    borderWidth: 1,
-    alignItems: "center",
-    borderColor: theme.colors.lightGray3,
-    borderRadius: 8,
-  },
-  restantesContainer: {
-    marginVertical: 10,
-  },
-  restantesSubContainer: {
-    width: "100%",
-    padding: 5,
-    borderWidth: 1,
-    borderColor: theme.colors.lightGray3,
-    borderRadius: 8,
+  totalValor: {
+    fontWeight: 'bold',
+    color: theme.colors.blue,
+    fontSize: 18,
   },
   botonesContainer: {
     flexDirection: "row",
     width: "100%",
     justifyContent: "space-evenly",
-  },
-  borderLine: {
-    borderBottomColor: theme.colors.primary,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    marginTop: 10,
+    paddingVertical: 15,
   },
 });

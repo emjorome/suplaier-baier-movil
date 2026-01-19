@@ -11,6 +11,7 @@ import theme from "../../theme";
 import StyledText from "../../styles/StyledText";
 import StyledTextInput from "../../styles/StyledTextInput";
 import Animated, { FadeInDown } from "react-native-reanimated";
+import PropTypes from "prop-types";
 
 const initialValues = {
   user: "",
@@ -26,6 +27,7 @@ const FormikInputValue = ({
   ...props
 }) => {
   const [field, meta, helpers] = useField(name);
+
   return (
     <View style={styles.inputGroup}>
       <StyledText style={styles.inputLabel}>{label}</StyledText>
@@ -60,6 +62,16 @@ const FormikInputValue = ({
       )}
     </View>
   );
+};
+
+// ⭐ PropTypes para FormikInputValue
+FormikInputValue.propTypes = {
+  name: PropTypes.string.isRequired,
+  icon: PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired,
+  isPassword: PropTypes.bool,
+  hidePassword: PropTypes.bool,
+  setHidePassword: PropTypes.func,
 };
 
 const LoginPage = () => {
@@ -250,6 +262,10 @@ const LoginPage = () => {
     </>
   );
 };
+
+// ⭐ PropTypes para LoginPage (aunque no tiene props, se deja vacío)
+LoginPage.propTypes = {};
+
 const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
@@ -359,3 +375,4 @@ const styles = StyleSheet.create({
 });
 
 export default LoginPage;
+

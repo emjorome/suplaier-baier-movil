@@ -1,41 +1,51 @@
-import { useReducer } from "react";
+import { useReducer, useMemo } from "react";
+import PropTypes from "prop-types";
 import { types } from "../types/types";
 import { AuthContext } from "./AuthContext";
 import { authReducer } from "./authReducer";
-const init = async () => {
-  return {
-    logged: false,
-  };
-};
 
-// aqui tambien deberia haber contexto para las ofertasActivas del usuario
+// init NO puede ser async para useReducer, corregido
+const init = () => ({
+  logged: false,
+});
+
+// aquí también debería haber contexto para las ofertasActivas del usuario
 
 export const AuthProvider = ({ children }) => {
   const [authState, dispatch] = useReducer(authReducer, {}, init);
+
   const login = (user) => {
-    const action = {
+    dispatch({
       type: types.login,
       payload: user,
-    };
-    dispatch(action);
+    });
   };
 
   const logout = () => {
-    const action = {
+    dispatch({
       type: types.logout,
-    };
-    dispatch(action);
+    });
   };
 
+  // 🔥 SonarQube fix: memorizar el objeto para no recrearlo cada render
+  const value = useMemo(
+    () => ({
+      authState,
+      login,
+      logout,
+    }),
+    [authState] // solo cambia cuando cambia el state
+  );
+
   return (
-    <AuthContext.Provider
-      value={{
-        authState,
-        login,
-        logout,
-      }}
-    >
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
 };
+
+// 🔥 SonarQube fix: validar props
+AuthProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+};
+

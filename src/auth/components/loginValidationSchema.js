@@ -8,7 +8,7 @@ export const loginValidationSchema = yup.object().shape({
     .max(30, "El usuario debe tener máximo 30 caracteres")
     .test('valid-user', 'El usuario no puede tener espacios ni caracteres especiales diferentes a _',
      function (value) {
-        const regex=/^[a-zA-Z0-9_]{3,30}$/;
+        const regex=/^\w{3,30}$/;
         return regex.test(value) 
     }),
     password: yup

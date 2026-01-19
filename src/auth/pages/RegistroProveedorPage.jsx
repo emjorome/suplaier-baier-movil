@@ -19,6 +19,16 @@ import { getProvincias, getCantones } from "../../data/provincias";
 import UploadImage from "../../styles/UploadImage";
 import { useReward } from "../../context/RewardContext";
 
+FormikInputValue.propTypes = {
+  name: PropTypes.string.isRequired,
+  icon: PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired,
+  isPassword: PropTypes.bool,
+  hidePassword: PropTypes.bool,
+  setHidePassword: PropTypes.func,
+  isDropDown: PropTypes.bool,
+};
+
 const RegistroProveedorPage = () => {
   const navigate = useNavigate();
   const { setReward } = useReward();

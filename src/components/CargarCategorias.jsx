@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { View, ActivityIndicator,StyleSheet } from 'react-native';
-import List_Categoria from './ListCategoria';
-import { apiUrl } from '../../apiUrl';
+import React, { useEffect, useState } from "react";
+import { View, ActivityIndicator, StyleSheet } from "react-native";
+import PropTypes from "prop-types";
+import ListCategoria from "./ListCategoria";   // PascalCase ✔
+import { apiUrl } from "../../apiUrl";
 
-export const Cargar_Categorias = ({ onSelectCategoria }) => {
+const CargarCategorias = ({ onSelectCategoria }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [categorias, setCategorias] = useState([]);
 
@@ -15,7 +16,7 @@ export const Cargar_Categorias = ({ onSelectCategoria }) => {
         const data = await response.json();
         setCategorias(data.rows);
       } catch (error) {
-        console.error('Error fetching data: ', error);
+        console.error("Error fetching data: ", error);
       }
       setIsLoading(false);
     };
@@ -28,17 +29,23 @@ export const Cargar_Categorias = ({ onSelectCategoria }) => {
       {isLoading ? (
         <ActivityIndicator size="large" color="#0000ff" />
       ) : (
-        <List_Categoria categorias={categorias} onSelectCategoria={onSelectCategoria} />
+        <ListCategoria
+          categorias={categorias}
+          onSelectCategoria={onSelectCategoria}
+        />
       )}
     </View>
   );
 };
+
+/* 🔥 PropTypes para corregir S6774 */
+CargarCategorias.propTypes = {
+  onSelectCategoria: PropTypes.func.isRequired,
+};
+
 const styles = StyleSheet.create({
-  container: {
-    // flex: 1,
-    // justifyContent: 'center',
-    // alignItems: 'center',
-    // Otros estilos necesarios
-  }
+  container: {},
 });
-export default Cargar_Categorias;
+
+/* Exportación por defecto correcta */
+export default CargarCategorias;

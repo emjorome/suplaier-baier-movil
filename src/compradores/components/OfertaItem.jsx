@@ -1,183 +1,233 @@
+import React, { useEffect, useMemo, useState, useContext } from "react";
 import { View, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { AuthContext } from "../../auth/context/AuthContext";
 import theme from "../../theme";
 import ProgressBar from "react-native-progress/Bar";
 import StyledText from "../../styles/StyledText";
 import { apiUrl } from "../../../apiUrl";
-import React, { useState, useEffect, useContext } from "react";
 import { dateOptions } from "../../components/dateOptions";
 import { EtiquetaEstadoOferta } from "../../components/EtiquetaEstadoOferta";
 import { DetalleProductoC } from "./DetalleProductoC";
 
 const OfertaItem = (props) => {
   const [isvisible, setisvisible] = useState(false);
-  const [producto, setProducto] = useState();
-  const [proveedor, setProveedor] = useState();
-  const [estadoOferta, setEstadoOferta] = useState();
-  const [nombreProveedor, setNombreProveedor] = useState();
-  const [datosProd, setDatosProd] = useState({});
-  const [progresoOferta, setProgresoOferta] = useState(0);
+  const [producto, setProducto] = useState(null);
+  const [proveedor, setProveedor] = useState(null);
+  const [estadoOferta, setEstadoOferta] = useState(null);
   const [estaUnido, setEstaUnido] = useState(false);
-  const fechaLimiteObj = new Date(props.FechaLimite);
   const { authState } = useContext(AuthContext);
 
-  let maximo;
-  let actualProductos;
+  const fechaLimiteObj = useMemo(() => {
+    const d = new Date(props?.FechaLimite ?? "");
+    return isNaN(d.getTime()) ? new Date() : d;
+  }, [props?.FechaLimite]);
 
-  const updateProgresoOferta = () => {
-    maximo = parseInt(props.Maximo);
-    actualProductos = parseInt(props.ActualProductos);
-    setProgresoOferta(actualProductos / maximo);
-  };
+  const maximo = useMemo(() => Number(props?.Maximo ?? 0) || 0, [props?.Maximo]);
+  const actualProductos = useMemo(
+    () => Number(props?.ActualProductos ?? 0) || 0,
+    [props?.ActualProductos]
+  );
+
+  const progresoOferta = useMemo(() => {
+    if (maximo <= 0) return 0;
+    const p = actualProductos / maximo;
+    if (!Number.isFinite(p)) return 0;
+    return Math.min(Math.max(p, 0), 1);
+  }, [actualProductos, maximo]);
+
+  const datosProd = useMemo(() => {
+    const costoU = Number(props?.ValorUProducto ?? 0) || 0;
+    const costoInst = Number(props?.ValorUInstantaneo ?? 0) || 0;
+
+    return {
+      nombreProd: producto?.Name ?? "",
+      costoU,
+      costoInst,
+      urlImg: producto?.UrlImg ?? null,
+      // por si luego lo usas en DetalleProductoC:
+      Descripcion: producto?.Descripcion ?? producto?.Description ?? "",
+      Valoracion: producto?.Valoracion ?? producto?.Rating ?? 1,
+    };
+  }, [producto, props?.ValorUProducto, props?.ValorUInstantaneo]);
+
+  const nombreProveedor = useMemo(() => proveedor?.Nombre ?? "", [proveedor]);
 
   const checkEstaUnidoOferta = async () => {
-    const resp = await globalThis.fetch(
-      `${apiUrl}/compras/estaUnido?idOferta=${props.IdOferta}&idComprador=${authState.user.IdUsuario}`
-    );
-    const data = await resp.json();
-    const { rows: filas } = !!data && data;
-    if (filas[0]["COUNT (*)"] === 1) {
-      setEstaUnido(true);
+    try {
+      const idComprador = authState?.user?.IdUsuario;
+      if (!idComprador || !props?.IdOferta) return;
+
+      const resp = await globalThis.fetch(
+        `${apiUrl}/compras/estaUnido?idOferta=${props.IdOferta}&idComprador=${idComprador}`
+      );
+
+      const data = await resp.json();
+      const filas = data?.rows ?? [];
+      const countRaw = filas?.[0]?.["COUNT (*)"];
+
+      if (Number(countRaw) === 1) setEstaUnido(true);
+      else setEstaUnido(false);
+    } catch (e) {
+      // si falla, no rompas UI
+      setEstaUnido(false);
     }
   };
 
   const getProductoOferta = async () => {
-    const resp = await globalThis.fetch(
-      `${apiUrl}/productos?id=${props.IdProducto}`
-    );
-    const data = await resp.json();
-    const { rows: producto } = !!data && data;
-    setProducto(producto[0]);
+    try {
+      if (!props?.IdProducto) return;
+      const resp = await globalThis.fetch(`${apiUrl}/productos?id=${props.IdProducto}`);
+      const data = await resp.json();
+      const rows = data?.rows ?? [];
+      setProducto(rows[0] ?? null);
+    } catch (e) {
+      setProducto(null);
+    }
   };
+
   const getProveedorOferta = async () => {
-    const resp = await globalThis.fetch(
-      `${apiUrl}/usuarios?idUsuario=${props.IdProveedor}`
-    );
-    const data = await resp.json();
-    const { rows: proveedor } = !!data && data;
-    setProveedor(proveedor[0]);
+    try {
+      if (!props?.IdProveedor) return;
+      const resp = await globalThis.fetch(
+        `${apiUrl}/usuarios?idUsuario=${props.IdProveedor}`
+      );
+      const data = await resp.json();
+      const rows = data?.rows ?? [];
+      setProveedor(rows[0] ?? null);
+    } catch (e) {
+      setProveedor(null);
+    }
   };
+
   const getEstadoOferta = async () => {
-    const resp = await globalThis.fetch(
-      `${apiUrl}/estados?id=${props.IdEstadosOferta}`
-    );
-    const data = await resp.json();
-    const { rows: estado } = !!data && data;
-    setEstadoOferta(estado[0]);
+    try {
+      if (!props?.IdEstadosOferta) return;
+      const resp = await globalThis.fetch(`${apiUrl}/estados?id=${props.IdEstadosOferta}`);
+      const data = await resp.json();
+      const rows = data?.rows ?? [];
+      setEstadoOferta(rows[0] ?? null);
+    } catch (e) {
+      setEstadoOferta(null);
+    }
   };
+
   useEffect(() => {
+    // Cargar datos al montar / cuando cambia oferta
     getProductoOferta();
     getProveedorOferta();
     getEstadoOferta();
-    updateProgresoOferta();
     checkEstaUnidoOferta();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props]);
+  }, [props?.IdOferta, props?.IdProducto, props?.IdProveedor, props?.IdEstadosOferta]);
 
-  useEffect(() => {
-    setNombreProveedor(proveedor?.Nombre);
-  }, [proveedor]);
+  const unidadesRestantes = useMemo(() => {
+    const r = maximo - actualProductos;
+    return r < 0 ? 0 : r;
+  }, [maximo, actualProductos]);
 
-  useEffect(() => {
-    setDatosProd({
-      nombreProd: producto?.Name,
-      costoU: parseFloat(props.ValorUProducto),
-      costoInst: parseFloat(props.ValorUInstantaneo),
-      urlImg: producto?.UrlImg,
-    });
-  }, [producto, props]);
+  const openDetalle = () => setisvisible(true);
 
   return (
-    <View style={styles.ofertaContainer}>
-      <View style={styles.textoImagenContainer}>
-        <StyledText
-          style={styles.textTitulo}
-          fontWeight="bold"
-          fontSize="subtitle"
-          color="purple"
-        >
-          {datosProd?.nombreProd}
-        </StyledText>
-        <Image
-          source={
-            datosProd?.urlImg != null && datosProd?.urlImg != "no-img.jpeg"
-              ? {
-                  uri: datosProd?.urlImg,
-                }
-              : require("../../../public/no-img.jpeg")
-          }
-          style={styles.imageContainer}
-        />
-        <StyledText color="purple">{nombreProveedor}</StyledText>
-      </View>
+    <>
+      {/* ✅ TODA LA TARJETA ES CLICKEABLE (como en la web) */}
+      <TouchableOpacity
+        activeOpacity={0.9}
+        style={styles.ofertaContainer}
+        onPress={openDetalle}
+      >
+        <View style={styles.textoImagenContainer}>
+          <StyledText
+            style={styles.textTitulo}
+            fontWeight="bold"
+            fontSize="subtitle"
+            color="purple"
+          >
+            {datosProd?.nombreProd}
+          </StyledText>
 
-      <View style={styles.enOfertaContainer}>
-        <View style={styles.textoEnOfertaContainer}>
-          <StyledText color="purple" fontWeight="bold">
-            En oferta:{" "}
-          </StyledText>
-          <StyledText color="purple">
-            {parseInt(props.Maximo) - parseInt(props.ActualProductos)}/
-          </StyledText>
-          <StyledText color="purple">{props.Maximo}</StyledText>
-        </View>
-        {estaUnido && <EtiquetaEstadoOferta estado="Unido" />}
-      </View>
-      <View style={styles.progressContainer}>
-        <View style={styles.progressBar}>
-          <ProgressBar
-            progress={progresoOferta}
-            width={200}
-            height={25}
-            color={theme.colors.blue}
-            unfilledColor={theme.colors.gray2}
+          <Image
+            source={
+              datosProd?.urlImg != null && datosProd?.urlImg !== "no-img.jpeg"
+                ? { uri: datosProd?.urlImg }
+                : require("../../../public/no-img.jpeg")
+            }
+            style={styles.imageContainer}
           />
-        </View>
-      </View>
 
-      <View style={styles.provEstadoContainer}>
-        <View style={styles.precioUContainer}>
-          <StyledText color="purple" fontWeight="bold">
-            Precio unitario:{" "}
-          </StyledText>
-          <StyledText color="purple">{datosProd?.costoU}$</StyledText>
+          <StyledText color="purple">{nombreProveedor}</StyledText>
         </View>
-        {estadoOferta?.Descripcion === "Cerrado" ? (
-          <EtiquetaEstadoOferta estado="Verificando pagos" />
-        ) : (
-          <EtiquetaEstadoOferta estado={estadoOferta?.Descripcion} />
-        )}
-      </View>
-      <View style={styles.provDetalleContainer}>
-        <View style={styles.precioInstContainer}>
+
+        <View style={styles.enOfertaContainer}>
+          <View style={styles.textoEnOfertaContainer}>
+            <StyledText color="purple" fontWeight="bold">
+              En oferta:{" "}
+            </StyledText>
+            <StyledText color="purple">{unidadesRestantes}/</StyledText>
+            <StyledText color="purple">{maximo}</StyledText>
+          </View>
+
+          {estaUnido && <EtiquetaEstadoOferta estado="Unido" />}
+        </View>
+
+        <View style={styles.progressContainer}>
+          <View style={styles.progressBar}>
+            <ProgressBar
+              progress={progresoOferta}
+              width={200}
+              height={25}
+              color={theme.colors.blue}
+              unfilledColor={theme.colors.gray2}
+            />
+          </View>
+        </View>
+
+        <View style={styles.provEstadoContainer}>
+          <View style={styles.precioUContainer}>
+            <StyledText color="purple" fontWeight="bold">
+              Precio unitario:{" "}
+            </StyledText>
+            <StyledText color="purple">{datosProd?.costoU}$</StyledText>
+          </View>
+
+          {estadoOferta?.Descripcion === "Cerrado" ? (
+            <EtiquetaEstadoOferta estado="Verificando pagos" />
+          ) : (
+            <EtiquetaEstadoOferta estado={estadoOferta?.Descripcion} />
+          )}
+        </View>
+
+        <View style={styles.provDetalleContainer}>
+          <View style={styles.precioInstContainer}>
+            <StyledText color="purple" fontWeight="bold">
+              Precio instantáneo:{" "}
+            </StyledText>
+            <StyledText color="purple">
+              {Number(datosProd?.costoInst ?? 0) === 0 ? "--" : `${datosProd?.costoInst}$`}
+            </StyledText>
+          </View>
+
+          {/* ✅ Botón opcional (si lo tocas también abre) */}
+          <TouchableOpacity style={styles.detalleContainer} onPress={openDetalle}>
+            <StyledText color="secondary">Detalle</StyledText>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.vigenciaContainer}>
           <StyledText color="purple" fontWeight="bold">
-            Precio instantáneo:{" "}
+            Fecha vigencia:{" "}
           </StyledText>
           <StyledText color="purple">
-            {datosProd?.costoInst === 0 ? "--" : datosProd?.costoInst + "$"}
+            {fechaLimiteObj.toLocaleString(undefined, dateOptions)}
           </StyledText>
         </View>
-        <TouchableOpacity
-          style={styles.detalleContainer}
-          onPress={() => setisvisible(true)}
-        >
-          <StyledText color="secondary">Detalle</StyledText>
-        </TouchableOpacity>
-      </View>
-      <View style={styles.vigenciaContainer}>
-        <StyledText color="purple" fontWeight="bold">
-          Fecha vigencia:{" "}
-        </StyledText>
-        <StyledText color="purple">
-          {fechaLimiteObj.toLocaleString(undefined, dateOptions)}
-        </StyledText>
-      </View>
+      </TouchableOpacity>
+
       {isvisible && (
         <DetalleProductoC
           isvisible={isvisible}
           onclose={() => setisvisible(false)}
           dataproducto={{
-            props,
+            props, // oferta raw
             producto,
             proveedor,
             estadoOferta,
@@ -185,18 +235,19 @@ const OfertaItem = (props) => {
             datosProd,
             progresoOferta,
             fechaLimiteObj,
-            Maximo: parseInt(props.Maximo),
-            Minimo: parseInt(props.Minimo),
-            actualProductos: parseInt(props.ActualProductos),
-            IdOferta: props.IdOferta,
-            IdUsuario: authState.user.IdUsuario,
+            Maximo: maximo,
+            Minimo: Number(props?.Minimo ?? 0) || 0,
+            actualProductos: actualProductos,
+            IdOferta: props?.IdOferta,
+            IdUsuario: authState?.user?.IdUsuario,
             estaUnido,
           }}
         />
       )}
-    </View>
+    </>
   );
 };
+
 const styles = StyleSheet.create({
   ofertaContainer: {
     borderWidth: 1,
@@ -267,4 +318,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
+
 export default OfertaItem;

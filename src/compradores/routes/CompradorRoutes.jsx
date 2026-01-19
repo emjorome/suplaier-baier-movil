@@ -8,6 +8,7 @@ import NavigationBar from "../components/NavigationBar";
 import OrdenesRoutes from "./OrdenesRoutes";
 import CrearProductoPage from "../pages/CrearProductoPage";
 import CrearDemandaPage from "../pages/CrearDemandaPage";
+import CanjearInvitacionPage from "../pages/CanjearInvitacionPage";
 const CompradorRoutes = ({
   closeButtonOffset,
   scaleValue,
@@ -112,6 +113,22 @@ const CompradorRoutes = ({
           </>
         }
       />
+      <Route
+      path="/comprador/canjearInvitacion/*"
+      element={
+        <>
+          <AppCompBar
+            closeButtonOffset={closeButtonOffset}
+            scaleValue={scaleValue}
+            offsetValue={offsetValue}
+            showMenu={showMenu}
+            setShowMenu={setShowMenu}
+          />
+          <StatusBar style="light" />
+          <CanjearInvitacionPage />
+        </>
+      }
+    />
     </Routes>
   );
 };

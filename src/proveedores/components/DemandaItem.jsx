@@ -7,7 +7,7 @@ import { apiUrl } from "../../../apiUrl";
 import React, { useState, useEffect, useContext } from "react";
 import { dateOptions } from "../../components/dateOptions";
 import { EtiquetaEstadoOferta } from "../../components/EtiquetaEstadoOferta";
-import { SimpleLineIcons } from "@expo/vector-icons";
+import Icon from "react-native-ico-material-design";
 import { DetalleProductoC } from "./DetalleProductoC";
 
 const DemandaItem = (props) => {
@@ -77,19 +77,14 @@ const DemandaItem = (props) => {
   }, [producto, props]);
 
   return (
-    <View testID="demandaItemRoot" style={styles.ofertaContainer}>
-      <View style={styles.demandaIcon}>
-        <SimpleLineIcons name="basket" size={24} color={theme.colors.purple} />
-      </View>
-      <View style={styles.textoImagenContainer}>
-        <StyledText
-          style={styles.textTitulo}
-          fontWeight="bold"
-          fontSize="subtitle"
-          color="purple"
-        >
-          {datosProd?.nombreProd}
-        </StyledText>
+    <TouchableOpacity
+      testID="demandaItemRoot"
+      style={styles.cardContainer}
+      activeOpacity={0.9}
+      onPress={() => setisvisible(true)}
+    >
+      {/* Imagen del producto */}
+      <View style={styles.imageSection}>
         <Image
           source={
             datosProd?.urlImg != null && datosProd?.urlImg != "no-img.jpeg"
@@ -98,69 +93,78 @@ const DemandaItem = (props) => {
                 }
               : require("../../../public/no-img.jpeg")
           }
-          style={styles.imageContainer}
+          style={styles.productImage}
         />
-        <StyledText color="purple">{nombreComprador}</StyledText>
       </View>
 
-      <View style={styles.enOfertaContainer}>
-        <View style={styles.textoEnOfertaContainer}>
-          <StyledText color="purple" fontWeight="bold">
-            En demanda:{" "}
-          </StyledText>
-          <StyledText color="purple">
-            {parseInt(props.Maximo) - parseInt(props.ActualProductos)}/
-          </StyledText>
-          <StyledText color="purple">{props.Maximo}</StyledText>
+      {/* Contenido de la tarjeta */}
+      <View style={styles.contentSection}>
+        {/* Header con etiqueta de estado */}
+        <View style={styles.headerRow}>
+          {estadoDemanda?.Descripcion === "Cerrado" ? (
+            <EtiquetaEstadoOferta estado="Verificando pagos" />
+          ) : (
+            <EtiquetaEstadoOferta estado={estadoDemanda?.Descripcion} />
+          )}
         </View>
-      </View>
-      <View style={styles.progressContainer}>
-        <View style={styles.progressBar}>
-          <ProgressBar
-            progress={progresoDemanda}
-            width={200}
-            height={25}
-            color={theme.colors.blue}
-            unfilledColor={theme.colors.gray2}
-          />
-        </View>
-      </View>
 
-      <View style={styles.provEstadoContainer}>
-        <View style={styles.precioUContainer}>
-          <StyledText color="purple" fontWeight="bold">
-            Precio mínimo:{" "}
+        {/* Título del producto y comprador */}
+        <View style={styles.titleSection}>
+          <StyledText style={styles.productTitle} numberOfLines={2}>
+            {datosProd?.nombreProd}
           </StyledText>
-          <StyledText color="purple">{datosProd?.precioMin}$</StyledText>
+          <View style={styles.buyerInfo}>
+            <StyledText style={styles.buyerName}>{nombreComprador}</StyledText>
+          </View>
         </View>
-        {estadoDemanda?.Descripcion === "Cerrado" ? (
-          <EtiquetaEstadoOferta estado="Verificando pagos" />
-        ) : (
-          <EtiquetaEstadoOferta estado={estadoDemanda?.Descripcion} />
-        )}
-      </View>
-      <View style={styles.provDetalleContainer}>
-        <View style={styles.precioInstContainer}>
-          <StyledText color="purple" fontWeight="bold">
-            Precio máximo:{" "}
+
+        {/* Información de demanda y progreso */}
+        <View style={styles.demandInfo}>
+          <StyledText style={styles.infoLabel}>
+            Se demanda: <StyledText style={styles.infoValue}>{props.Maximo}</StyledText>
           </StyledText>
-          <StyledText color="purple">{datosProd?.precioMax}$</StyledText>
+          <StyledText style={styles.infoLabel}>
+            Actual: <StyledText style={styles.infoValue}>{parseInt(props.ActualProductos)} / {props.Maximo}</StyledText>
+          </StyledText>
+          <View style={styles.progressContainer}>
+            <ProgressBar
+              progress={progresoDemanda}
+              width={null}
+              height={6}
+              color="#10b981"
+              unfilledColor="#e5e7eb"
+              borderWidth={0}
+              borderRadius={3}
+              style={styles.progressBar}
+            />
+          </View>
+          <StyledText style={styles.infoLabel}>
+            Fecha vigencia: <StyledText style={styles.infoValue}>{fechaLimiteObj.toLocaleDateString()}</StyledText>
+          </StyledText>
         </View>
+
+        {/* Precios destacados */}
+        <View style={styles.pricesSection}>
+          <View style={styles.priceBox}>
+            <StyledText style={styles.priceLabel}>Precio Mínimo</StyledText>
+            <StyledText style={styles.priceValue}>${datosProd?.precioMin}</StyledText>
+          </View>
+          <View style={styles.priceBox}>
+            <StyledText style={styles.priceLabel}>Precio Máximo</StyledText>
+            <StyledText style={styles.priceValue}>${datosProd?.precioMax}</StyledText>
+          </View>
+        </View>
+
+        {/* Botón de acción */}
         <TouchableOpacity
-          style={styles.detalleContainer}
+          style={styles.actionButton}
           onPress={() => setisvisible(true)}
+          activeOpacity={0.8}
         >
-          <StyledText color="secondary">Detalle</StyledText>
+          <StyledText style={styles.actionButtonText}>CREAR PROPUESTA</StyledText>
         </TouchableOpacity>
       </View>
-      <View style={styles.vigenciaContainer}>
-        <StyledText color="purple" fontWeight="bold">
-          Fecha vigencia:{" "}
-        </StyledText>
-        <StyledText color="purple">
-          {fechaLimiteObj.toLocaleString(undefined, dateOptions)}
-        </StyledText>
-      </View>
+
       <DetalleProductoC
         isvisible={isvisible}
         onclose={() => setisvisible(false)}
@@ -180,78 +184,129 @@ const DemandaItem = (props) => {
           IdUsuario: authState.user.IdUsuario,
         }}
       />
-    </View>
+    </TouchableOpacity>
   );
 };
+
 const styles = StyleSheet.create({
-  ofertaContainer: {
+  cardContainer: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    marginBottom: 16,
     borderWidth: 1,
-    borderRadius: 4,
-    borderColor: theme.colors.lightGray2,
-    marginBottom: 10,
-    padding: 10,
+    borderColor: "#e5e7eb",
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.04,
+    shadowRadius: 3,
+    elevation: 2,
   },
-  demandaIcon: { width: "100%", alignItems: "flex-start" },
-  textTitulo: {
-    textAlign: "center",
+  imageSection: {
+    width: "100%",
+    height: 180,
+    backgroundColor: "#f9fafb",
   },
-  textoImagenContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-    textAlign: "center",
-  },
-  imageContainer: {
-    width: 210,
-    height: 210,
+  productImage: {
+    width: "100%",
+    height: "100%",
     resizeMode: "contain",
   },
-  provEstadoContainer: {
+  contentSection: {
+    padding: 16,
+  },
+  headerRow: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    marginBottom: 12,
+  },
+  titleSection: {
+    marginBottom: 12,
+  },
+  productTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#111827",
+    marginBottom: 4,
+    lineHeight: 22,
+  },
+  buyerInfo: {
+    flexDirection: "row",
     alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 10,
   },
-  provDetalleContainer: {
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 7,
+  buyerName: {
+    fontSize: 14,
+    color: "#6b7280",
+    fontWeight: "400",
   },
-  enOfertaContainer: {
-    alignItems: "flex-start",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 5,
+  demandInfo: {
+    marginBottom: 12,
   },
-  textoEnOfertaContainer: {
-    alignItems: "flex-start",
-    flexDirection: "row",
+  infoLabel: {
+    fontSize: 14,
+    color: "#6b7280",
+    marginBottom: 4,
+    fontWeight: "400",
   },
-  precioUContainer: {
-    flexDirection: "row",
-  },
-  precioInstContainer: {
-    flexDirection: "row",
+  infoValue: {
+    fontWeight: "600",
+    color: "#111827",
   },
   progressContainer: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    marginTop: 5,
+    marginVertical: 8,
   },
   progressBar: {
-    marginRight: 2,
+    width: "100%",
   },
-  vigenciaContainer: {
-    alignItems: "flex-start",
+  pricesSection: {
     flexDirection: "row",
-    marginTop: 12,
+    gap: 12,
+    marginBottom: 16,
   },
-  detalleContainer: {
-    backgroundColor: theme.colors.blue,
-    padding: 5,
-    paddingHorizontal: 20,
+  priceBox: {
+    flex: 1,
+    backgroundColor: "#f9fafb",
+    padding: 12,
     borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#e5e7eb",
+  },
+  priceLabel: {
+    fontSize: 12,
+    color: "#6b7280",
+    marginBottom: 4,
+    fontWeight: "500",
+  },
+  priceValue: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#2563eb",
+  },
+  actionButton: {
+    backgroundColor: "#2563eb",
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 6,
     alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#2563eb",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  actionButtonText: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#fff",
+    letterSpacing: 0.5,
   },
 });
+
 export default DemandaItem;

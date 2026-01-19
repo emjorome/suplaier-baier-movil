@@ -22,6 +22,7 @@ import DateTimePicker from "react-native-modal-datetime-picker";
 const initialValues = {
   pmax: "",
   pmin: "",
+  idValorInst: "sinInst",
 };
 
 const FormikInputValue = ({
@@ -40,29 +41,50 @@ const FormikInputValue = ({
   ...props
 }) => {
   const [field, meta, helpers] = useField(name);
+  
+  // Sincronizar el estado local con Formik cuando cambia
+  useEffect(() => {
+    if (isDropDown && selected && field.value !== selected) {
+      helpers.setValue(selected);
+    }
+  }, [selected]);
+  
+  // Inicializar el valor seleccionado desde Formik
+  useEffect(() => {
+    if (isDropDown && field.value && !selected) {
+      setSelected(field.value);
+    }
+  }, [field.value]);
+
   return (
     <View>
-      <Octicons
-        style={styles.leftIcon}
-        name={icon}
-        size={30}
-        color={theme.colors.purple1}
-      />
       <StyledText style={styles.textInputLabel}>{label}</StyledText>
       {isDropDown ? (
-        <StyledSelectList
-          setSelected={(val) => setSelected(val)}
-          onSelect={() => {
-            helpers.setValue(selected);
-            if (isWithPeticion) {
-              getSelectProduct();
-            }
-          }}
-          data={productosSelectList}
-          save="key"
-          error={meta.error}
-          {...props}
-        />
+        <>
+          {icon && (
+            <Octicons
+              style={styles.leftIcon}
+              name={icon}
+              size={30}
+              color={theme.colors.purple1}
+            />
+          )}
+          <StyledSelectList
+            setSelected={(val) => {
+              setSelected(val);
+              helpers.setValue(val);
+            }}
+            onSelect={() => {
+              if (isWithPeticion) {
+                getSelectProduct();
+              }
+            }}
+            data={productosSelectList}
+            save="key"
+            error={meta.error}
+            {...props}
+          />
+        </>
       ) : (
         <>
           <Octicons
@@ -150,10 +172,10 @@ const CrearOfertaPage = () => {
   const [productoSelected, setProductoSelected] = useState("");
   const [isvisibleresumen, setisvisibleresumen] = useState(false);
   const [values, setValues] = useState();
-  const [esInstSelected, setEsInstSelected] = useState(0);
-  const esInstLista = [
-    { key: 0, value: "Sin precio instantáneo" },
-    { key: 1, value: "Con precio instantáneo" },
+  const [idValorInst, setIdValorInst] = useState("sinInst");
+  const valorInstLista = [
+    { key: "sinInst", value: "Sin precio instantáneo" },
+    { key: "conInst", value: "Con precio instantáneo" },
   ];
 
   const getProductos = async () => {
@@ -193,7 +215,7 @@ const CrearOfertaPage = () => {
   };
   return (
     <>
-      <ScrollView>
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         <StyledText
           color="tertiary"
           fontWeight="bold"
@@ -216,7 +238,7 @@ const CrearOfertaPage = () => {
           initialValues={initialValues}
           onSubmit={(values) => onMostrarResumen(values)}
         >
-          {({ handleSubmit }) => {
+          {({ handleSubmit, values: formValues }) => {
             return (
               <View style={styles.form}>
                 <FormikInputValue
@@ -264,15 +286,28 @@ const CrearOfertaPage = () => {
                   testIDError="CrearOferta.Error.InputPU"
                 />
                 <FormikInputValue
-                  name="pmax"
-                  keyboardType="decimal-pad"
-                  placeholder="Precio para compra instantánea"
-                  icon="star"
-                  placeholderTextColor={theme.colors.gray1}
-                  label="Precio Instantáneo"
-                  testID="CrearOferta.InputPI"
-                  testIDError="CrearOferta.Error.InputPI"
+                  name="idValorInst"
+                  setSelected={setIdValorInst}
+                  selected={formValues.idValorInst || idValorInst}
+                  placeholder="Selecciona si incluye precio instantáneo"
+                  placeholderTextColor={theme.colors.textPrimary}
+                  label="Valor instantáneo"
+                  searchPlaceholder="Buscar"
+                  isDropDown
+                  productosSelectList={valorInstLista}
                 />
+                {(formValues.idValorInst === "conInst" || idValorInst === "conInst") && (
+                  <FormikInputValue
+                    name="pmax"
+                    keyboardType="decimal-pad"
+                    placeholder="Precio para compra instantánea"
+                    icon="star"
+                    placeholderTextColor={theme.colors.gray1}
+                    label="Precio Instantáneo"
+                    testID="CrearOferta.InputPI"
+                    testIDError="CrearOferta.Error.InputPI"
+                  />
+                )}
                 <FormikInputValue
                   name="description"
                   icon="list-unordered"
@@ -340,6 +375,10 @@ const CrearOfertaPage = () => {
   );
 };
 const styles = StyleSheet.create({
+  scrollView: {
+    flex: 1,
+    backgroundColor: "white",
+  },
   container: {
     flex: 1,
     alignItems: "center",
@@ -363,11 +402,15 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   form: {
-    margin: 20,
+    margin: 15,
+    marginHorizontal: 20,
+    paddingBottom: 30,
   },
   textInputLabel: {
     color: theme.colors.purple,
     textAlign: "left",
+    marginTop: 10,
+    marginBottom: 5,
   },
 
   subtitle: {
@@ -402,19 +445,36 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.lightgreen,
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 5,
-    marginVertical: 5,
-    height: 60,
+    borderRadius: 8,
+    marginVertical: 10,
+    marginTop: 20,
+    height: 55,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   dateButton: {
     padding: 15,
     backgroundColor: theme.colors.blue,
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 5,
-    marginVertical: 5,
+    borderRadius: 8,
+    marginVertical: 8,
     height: 50,
-    width: "70%",
+    width: "100%",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+    elevation: 2,
   },
   borderLine: {
     borderBottomColor: theme.colors.gray1,
@@ -474,8 +534,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: theme.colors.gray2,
     borderRadius: 5,
-    marginBottom: 5,
+    marginBottom: 15,
+    marginTop: 10,
     padding: 10,
+    backgroundColor: theme.colors.white,
   },
   imageContainer: {
     width: "100%",

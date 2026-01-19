@@ -1,10 +1,13 @@
-import { React, useContext } from "react";
-import { StyleSheet, View, Image, ScrollView, Text } from "react-native";
+import React, { useContext } from "react";
+import { StyleSheet, View, Image, ScrollView, Text, TouchableOpacity } from "react-native";
 import StyledText from "../../styles/StyledText";
 import { StatusBar } from "expo-status-bar";
 import { AuthContext } from "../../auth/context/AuthContext.jsx";
+import { useNavigate } from "react-router-native";
+
 const ProfilePage = () => {
   const { authState } = useContext(AuthContext);
+  const navigate = useNavigate();
   return (
     <ScrollView>
       <View style={styles.topContainer}>
@@ -65,6 +68,12 @@ const ProfilePage = () => {
           <Text style={styles.label}>Correo electrónico:</Text>
           <Text style={styles.content}>{authState.user.Email}</Text>
         </View>
+        <TouchableOpacity
+          style={styles.inviteButton}
+          onPress={() => navigate("/comprador/canjearInvitacion")}
+        >
+          <Text style={styles.inviteButtonText}>Canjear invitación</Text>
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );
@@ -132,6 +141,19 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 3,
     elevation: 4,
+  },
+  inviteButton: {
+    backgroundColor: "#3B82F6",
+    paddingVertical: 12,
+    borderRadius: 12,
+    alignItems: "center",
+    marginTop: 8,
+    marginBottom: 24,
+  },
+  inviteButtonText: {
+    color: "#fff",
+    fontWeight: "700",
+    fontSize: 16,
   },
 });
 

@@ -1,8 +1,8 @@
-import { StyleSheet, View, Image, TouchableOpacity } from "react-native";
+import { StyleSheet, View, Image, TouchableOpacity, ScrollView } from "react-native";
 import { useState, useContext } from "react";
 import { Formik, useField } from "formik";
 import { StatusBar } from "expo-status-bar";
-import { Octicons, Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { useNavigate } from "react-router-native";
 import { loginValidationSchema } from "../components/loginValidationSchema";
 import { apiUrl } from "../../../apiUrl";
@@ -20,7 +20,6 @@ const initialValues = {
 
 const FormikInputValue = ({
   name,
-  icon,
   label,
   isPassword,
   hidePassword,
@@ -30,38 +29,35 @@ const FormikInputValue = ({
   const [field, meta, helpers] = useField(name);
 
   return (
-    <View>
-      <Octicons
-        style={styles.leftIcon}
-        name={icon}
-        size={30}
-        color={theme.colors.purple1}
-      />
-      <StyledText style={styles.textInputLabel}>{label}</StyledText>
-
-      <StyledTextInput
-        error={meta.error}
-        value={field.value}
-        onChangeText={(value) => helpers.setValue(value)}
-        {...props}
-      />
-
-      {isPassword && (
-        <TouchableOpacity
-          style={styles.rightIcon}
-          onPress={() => setHidePassword(!hidePassword)}
-        >
-          <Ionicons
-            name={hidePassword ? "md-eye-off" : "md-eye"}
-            size={30}
-            color={theme.colors.gray1}
-          />
-        </TouchableOpacity>
-      )}
-
+    <View style={styles.inputGroup}>
+      <StyledText style={styles.inputLabel}>{label}</StyledText>
+      <View style={styles.inputContainer}>
+        <StyledTextInput
+          error={meta.error}
+          value={field.value}
+          onChangeText={(value) => helpers.setValue(value)}
+          style={[
+            styles.textInput,
+            isPassword && styles.textInputWithIcon
+          ]}
+          {...props}
+        />
+        {isPassword && (
+          <TouchableOpacity
+            style={styles.eyeIcon}
+            onPress={() => setHidePassword(!hidePassword)}
+          >
+            <Ionicons
+              name={hidePassword ? "eye-off-outline" : "eye-outline"}
+              size={24}
+              color={theme.colors.gray1}
+            />
+          </TouchableOpacity>
+        )}
+      </View>
       {meta.error && (
-        <StyledText style={styles.errorText} fontSize="body">
-          {meta.error}
+        <StyledText style={styles.errorText} fontSize="small">
+          ⚠️ {meta.error}
         </StyledText>
       )}
     </View>
@@ -86,188 +82,183 @@ const LoginPage = () => {
   const [disabled, setDisabled] = useState(false);
 
   const getAuthResponse = async (username, password) => {
-    const body = {
-      usuario: username,
-      pass: password,
-    };
+    try {
+      console.log('Intentando login con:', username);
+      console.log('URL API:', `${apiUrl}/auth`);
+      
+      const body = {
+        usuario: username,
+        pass: password,
+      };
+      
+      const resp = await global.fetch(`${apiUrl}/auth`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+      
+      console.log('Respuesta status:', resp.status);
+      const data = await resp.json();
+      console.log('Datos recibidos:', data);
 
-    // ⭐ SonarQube fix: usar globalThis en vez de global
-    const resp = await globalThis.fetch(`${apiUrl}/auth`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
-
-    const data = await resp.json();
-
-    if (data.length === 0) {
+      if (data.length === 0) {
+        return null;
+      } else {
+        return data[0];
+      }
+    } catch (error) {
+      console.error('Error en getAuthResponse:', error);
       return null;
-    } else {
-      return data[0];
     }
   };
 
-  const onSubmitLogin = (values) => {
-    setDisabled(true);
-
-    getAuthResponse(values.user.trim(), values.password.trim()).then((user) => {
+  const onSubmitLogin = async (values) => {
+    try {
+      console.log('onSubmitLogin llamado con valores:', values);
+      setDisabled(true);
+      setCredentialsIncorrect(false);
+      
+      const user = await getAuthResponse(values.user.trim(), values.password.trim());
+      
       setDisabled(false);
-
+      
       if (user) {
+        console.log('Login exitoso, usuario:', user);
         login(user);
-        setCredentialsIncorrect(false);
-
         navigate("/splash", {
           replace: true,
         });
       } else {
+        console.log('Login fallido - credenciales incorrectas');
         setCredentialsIncorrect(true);
       }
-    });
+    } catch (error) {
+      console.error('Error en onSubmitLogin:', error);
+      setDisabled(false);
+      setCredentialsIncorrect(true);
+    }
   };
 
   return (
     <>
-      <Animated.View
-        style={styles.container}
-        entering={FadeInDown.duration(1000)}
-      >
-        <Image
-          resizeMode="cover"
-          source={require("../../../public/suplaier_horizontal_degradado_recortado.png")}
-          style={styles.pageLogo}
-        />
-
-        <StyledText
-          color="tertiary"
-          fontWeight="bold"
-          fontSize="title"
-          style={styles.pageTitle}
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <Animated.View
+          style={styles.container}
+          entering={FadeInDown.duration(1000)}
         >
-          Iniciar sesión
-        </StyledText>
+          {/* Header con logo */}
+          <View style={styles.header}>
+            <Image
+              resizeMode="contain"
+              source={require("../../../public/suplaier_logo_celeste.png")}
+              style={styles.logo}
+            />
+            <StyledText
+              fontWeight="bold"
+              fontSize="title"
+              style={styles.title}
+            >
+              Bienvenido de nuevo
+            </StyledText>
+            <StyledText
+              color="textGray"
+              fontSize="body"
+              style={styles.subtitle}
+            >
+              Ingresa tus credenciales para acceder a tu cuenta
+            </StyledText>
+          </View>
 
-        <StyledText
-          color="tertiary"
-          fontWeight="normal"
-          fontSize="subheading"
-          style={styles.subtitle}
-        >
-          Para comenzar inicia sesión con tu usuario y contraseña
-        </StyledText>
+          {/* Formulario */}
+          <Formik
+            validationSchema={loginValidationSchema}
+            initialValues={initialValues}
+            onSubmit={(values) => onSubmitLogin(values)}
+          >
+            {({ handleSubmit }) => {
+              return (
+                <View style={styles.form}>
+                  {credentialsIncorrect && (
+                    <View style={styles.errorContainer}>
+                      <StyledText style={styles.errorText} fontSize="body">
+                        ⚠️ Usuario y/o contraseña incorrectos
+                      </StyledText>
+                    </View>
+                  )}
+                  
+                  <FormikInputValue
+                    testID="LoginPage.InputUser"
+                    name="user"
+                    placeholder="Ej. empresa_sa"
+                    placeholderTextColor={theme.colors.gray1}
+                    label="Usuario"
+                    autoCapitalize="none"
+                  />
+                  
+                  <FormikInputValue
+                    testID="LoginPage.InputPassword"
+                    name="password"
+                    placeholder="••••••••"
+                    placeholderTextColor={theme.colors.gray1}
+                    secureTextEntry={hidePassword}
+                    label="Contraseña"
+                    isPassword
+                    hidePassword={hidePassword}
+                    setHidePassword={setHidePassword}
+                  />
 
-        <Formik
-          validationSchema={loginValidationSchema}
-          initialValues={initialValues}
-          onSubmit={onSubmitLogin}
-        >
-          {({ handleSubmit }) => (
-            <View style={styles.form}>
-              {credentialsIncorrect && (
-                <View style={styles.containerCredentialsIncorrect}>
-                  <StyledText style={styles.errorText} fontSize="body">
-                    Usuario y/o contraseña incorrectos
-                  </StyledText>
+                  <TouchableOpacity
+                    testID="LoginPage.LoginButton"
+                    style={[
+                      styles.submitButton,
+                      disabled && styles.submitButtonDisabled
+                    ]}
+                    onPress={handleSubmit}
+                    disabled={disabled}
+                  >
+                    <StyledText
+                      fontSize="subheading"
+                      color="secondary"
+                      fontWeight="bold"
+                    >
+                      INICIAR SESIÓN
+                    </StyledText>
+                  </TouchableOpacity>
+
+                  {/* Footer */}
+                  <View style={styles.footer}>
+                    <StyledText
+                      fontSize="body"
+                      color="textGray"
+                    >
+                      ¿Aún no tienes cuenta?{" "}
+                    </StyledText>
+                    <TouchableOpacity
+                      testID="LoginPage.RegisterButton"
+                      onPress={() => {
+                        navigate("/signup", {
+                          replace: true,
+                        });
+                      }}
+                    >
+                      <StyledText 
+                        fontSize="body" 
+                        style={styles.linkText}
+                        fontWeight="bold"
+                      >
+                        Regístrate aquí
+                      </StyledText>
+                    </TouchableOpacity>
+                  </View>
                 </View>
-              )}
-
-              <FormikInputValue
-                testID="LoginPage.InputUser"
-                name="user"
-                icon="person"
-                placeholder="ejemplo_proveedor.004"
-                placeholderTextColor={theme.colors.gray1}
-                label="Usuario"
-              />
-
-              <FormikInputValue
-                testID="LoginPage.InputPassword"
-                name="password"
-                icon="lock"
-                placeholder="**********"
-                placeholderTextColor={theme.colors.gray1}
-                secureTextEntry={hidePassword}
-                label="Contraseña"
-                isPassword
-                hidePassword={hidePassword}
-                setHidePassword={setHidePassword}
-              />
-
-              <TouchableOpacity
-                style={{
-                  padding: 15,
-                  backgroundColor: disabled
-                    ? "gray"
-                    : theme.colors.lightblue1,
-                  justifyContent: "center",
-                  alignItems: "center",
-                  borderRadius: 5,
-                  marginVertical: 5,
-                  height: 60,
-                  testID: "LoginPage.LoginButton",
-                }}
-                onPress={handleSubmit}
-                disabled={disabled}
-              >
-                <StyledText
-                  fontSize="subheading"
-                  color="secondary"
-                  fontWeight="bold"
-                >
-                  Iniciar sesión
-                </StyledText>
-              </TouchableOpacity>
-
-              <View style={styles.borderLine} />
-
-              <TouchableOpacity
-                testID="LoginPage.RegisterButton"
-                style={styles.registerButton}
-                onPress={() =>
-                  navigate("/signup_type", {
-                    replace: true,
-                  })
-                }
-              >
-                <StyledText
-                  fontSize="subheading"
-                  color="secondary"
-                  fontWeight="bold"
-                >
-                  Registrarse
-                </StyledText>
-              </TouchableOpacity>
-
-              <View style={styles.extraView}>
-                <StyledText
-                  fontSize="subheading"
-                  color="primary"
-                  style={styles.extraText}
-                >
-                  ¿Aún no tienes cuenta?,{" "}
-                </StyledText>
-
-                <TouchableOpacity
-                  style={styles.extraTextLink}
-                  onPress={() =>
-                    navigate("/signup_type", {
-                      replace: true,
-                    })
-                  }
-                >
-                  <StyledText fontSize="subheading" style={styles.textLink}>
-                    ¡Regístrate!
-                  </StyledText>
-                </TouchableOpacity>
-              </View>
-            </View>
-          )}
-        </Formik>
-      </Animated.View>
-
-      <StatusBar style="light" />
+              );
+            }}
+          </Formik>
+        </Animated.View>
+      </ScrollView>
+      <StatusBar style="dark" />
     </>
   );
 };
@@ -276,96 +267,110 @@ const LoginPage = () => {
 LoginPage.propTypes = {};
 
 const styles = StyleSheet.create({
+  scrollContainer: {
+    flexGrow: 1,
+  },
   container: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "white",
-    position: "absolute",
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-  },
-  containerCredentialsIncorrect: {
-    alignItems: "center",
+    backgroundColor: theme.colors.background,
+    paddingHorizontal: theme.spacing.l,
+    paddingVertical: theme.spacing.xxl,
     justifyContent: "center",
   },
-  pageLogo: {
-    width: 307.98,
-    height: 61.14,
-    marginTop: 60,
-    marginBottom: 5,
+  header: {
+    alignItems: "center",
+    marginBottom: theme.spacing.xxl,
   },
-  pageTitle: {
+  logo: {
+    width: 120,
+    height: 120,
+    marginBottom: theme.spacing.l,
+  },
+  title: {
     textAlign: "center",
-    padding: 10,
-    marginTop: 20,
-  },
-  credentialsIncorrect: {
-    marginTop: 5,
-    marginBottom: 5,
-  },
-  form: {
-    margin: 20,
-  },
-  textInputLabel: {
-    color: theme.colors.purple,
-    textAlign: "left",
+    color: theme.colors.textPrimary,
+    marginBottom: theme.spacing.s,
   },
   subtitle: {
     textAlign: "center",
-    marginBottom: 20,
-    letterSpacing: 1,
-    paddingHorizontal: 25,
+    paddingHorizontal: theme.spacing.m,
+    lineHeight: 24,
   },
-  leftIcon: {
-    left: 15,
-    top: 38,
+  form: {
+    width: "100%",
+    maxWidth: 450,
+    alignSelf: "center",
+  },
+  inputGroup: {
+    marginBottom: theme.spacing.l,
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: theme.colors.secondary,
+    marginBottom: theme.spacing.s,
+  },
+  inputContainer: {
+    position: "relative",
+  },
+  textInput: {
+    width: "100%",
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    backgroundColor: theme.colors.inputBackground,
+    borderWidth: 1,
+    borderColor: "transparent",
+    borderRadius: theme.borderRadius.s,
+    color: theme.colors.secondary,
+    height: 52,
+    marginVertical: 0,
+    marginBottom: 0,
+    paddingLeft: 16,
+    paddingRight: 16,
+  },
+  textInputWithIcon: {
+    paddingRight: 48,
+  },
+  eyeIcon: {
     position: "absolute",
-    zIndex: 1,
+    right: 16,
+    top: "50%",
+    transform: [{ translateY: -12 }],
   },
-  rightIcon: {
-    right: 15,
-    top: 38,
-    position: "absolute",
-    zIndex: 1,
-  },
-  registerButton: {
-    padding: 15,
-    backgroundColor: theme.colors.lightgreen,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 5,
-    marginVertical: 5,
-    height: 60,
-  },
-  borderLine: {
-    borderBottomColor: theme.colors.gray1,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    marginVertical: 15,
+  errorContainer: {
+    backgroundColor: theme.colors.red1,
+    padding: theme.spacing.m,
+    borderRadius: theme.borderRadius.s,
+    marginBottom: theme.spacing.l,
   },
   errorText: {
-    color: theme.colors.red,
-    marginBottom: 10,
-    marginTop: -13,
+    color: theme.colors.error,
+    marginTop: 4,
   },
-  extraView: {
+  submitButton: {
+    marginTop: theme.spacing.l,
+    paddingVertical: 16,
+    backgroundColor: theme.colors.primary,
     justifyContent: "center",
+    alignItems: "center",
+    borderRadius: theme.borderRadius.s,
+    ...theme.shadows.soft,
+  },
+  submitButtonDisabled: {
+    backgroundColor: theme.colors.disabled,
+  },
+  footer: {
     flexDirection: "row",
-    alignItems: "center",
-    padding: 5,
-  },
-  extraText: {
-    justifyContent: "center",
-    alignContent: "center",
-  },
-  extraTextLink: {
     justifyContent: "center",
     alignItems: "center",
+    marginTop: theme.spacing.xxl,
+    paddingTop: theme.spacing.l,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.border,
   },
-  textLink: {
-    color: theme.colors.purple,
+  linkText: {
+    color: theme.colors.primary,
   },
 });
 

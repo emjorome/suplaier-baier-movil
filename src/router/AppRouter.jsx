@@ -9,6 +9,7 @@ import PublicRoutes from "./PublicRoutes.jsx";
 import MainProveedor from "../proveedores/routes/MainProveedor.jsx";
 import MainComprador from "../compradores/routes/MainComprador.jsx";
 import LoginPage from "../auth/pages/LoginPage.jsx";
+import SignupPage from "../auth/pages/SignupPage.jsx";
 import TipoRegistroPage from "../auth/pages/TipoRegistroPage.jsx";
 import RegistroProveedorPage from "../auth/pages/RegistroProveedorPage.jsx";
 import RegistroCompradorPage from "../auth/pages/RegistroCompradorPage.jsx";
@@ -34,6 +35,14 @@ const AppRouter = () => {
           element={
             <PublicRoutes>
               <LoginPage />
+            </PublicRoutes>
+          }
+        />
+        <Route
+          path="/signup"
+          element={
+            <PublicRoutes>
+              <SignupPage />
             </PublicRoutes>
           }
         />

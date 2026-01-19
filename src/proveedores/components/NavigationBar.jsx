@@ -20,6 +20,18 @@ const NavigationBar = () => {
   return (
     <View style={styles.container}>
       <View style={styles.navBar}>
+        <NavBarTab active to="/proveedor/home/dashboard">
+          <Icon
+            name="home-button"
+            height={iconHeight}
+            width={iconWidth}
+            color={
+              location.pathname == "/proveedor/home/dashboard"
+                ? theme.colors.lightblue
+                : theme.bottomBar.iconPrimary
+            }
+          />
+        </NavBarTab>
         <NavBarTab active to="/proveedor/home/ofertas">
           <Icon
             name="bookmark-button-1"

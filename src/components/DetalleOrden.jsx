@@ -1,5 +1,13 @@
 import React, { useEffect, useContext } from "react";
-import { View, Image, Modal, StyleSheet, ScrollView } from "react-native";
+import {
+  View,
+  Image,
+  Modal,
+  StyleSheet,
+  ScrollView,
+} from "react-native";
+import PropTypes from "prop-types";
+
 import { StarsQualification } from "../proveedores/components/StarsQualification";
 import { ButtonWithText } from "../proveedores/components/ButtonWithText";
 import { AuthContext } from "../auth/context/AuthContext";
@@ -7,20 +15,22 @@ import { AuthContext } from "../auth/context/AuthContext";
 import StyledText from "../styles/StyledText";
 import theme from "../theme";
 import { dateOptions } from "./dateOptions";
+
 export const DetalleOrden = ({ isvisible, onclose, dataorden }) => {
   const { authState } = useContext(AuthContext);
-  const fechaLimiteObj = new Date(dataorden?.props.Fecha ?? "");
+
+  const fechaLimiteObj = new Date(dataorden?.props?.Fecha ?? "");
 
   const validarValoracion = (valor) => {
     const valorEntero = Math.floor(valor);
     return Math.min(Math.max(valorEntero, 1), 5);
   };
 
-  const calificacion = validarValoracion(dataorden?.producto?.Valoracion ?? 1);
+  const calificacion = validarValoracion(
+    dataorden?.producto?.Valoracion ?? 1
+  );
 
-  useEffect(() => {
-    // console.log("Detalle Producto", dataorden?.estadoOferta);
-  }, []);
+  useEffect(() => {}, []);
 
   return (
     <Modal visible={isvisible} transparent animationType="slide">
@@ -35,6 +45,7 @@ export const DetalleOrden = ({ isvisible, onclose, dataorden }) => {
             >
               {dataorden?.datosProd?.nombreProd ?? ""}
             </StyledText>
+
             <ButtonWithText
               anyfunction={onclose}
               title=""
@@ -46,15 +57,14 @@ export const DetalleOrden = ({ isvisible, onclose, dataorden }) => {
           <View style={styles.firstContainer}>
             <Image
               source={
-                dataorden?.datosProd?.urlImg != null &&
-                dataorden?.datosProd?.urlImg != "no-img.jpeg"
-                  ? {
-                      uri: dataorden?.datosProd?.urlImg ?? "",
-                    }
+                dataorden?.datosProd?.urlImg &&
+                dataorden?.datosProd?.urlImg !== "no-img.jpeg"
+                  ? { uri: dataorden?.datosProd?.urlImg }
                   : require("../../public/no-img.jpeg")
               }
               style={styles.imageContainer}
             />
+
             <View style={styles.starsContainer}>
               <StarsQualification calificacion={calificacion} />
               <StyledText color="primary">
@@ -89,7 +99,6 @@ export const DetalleOrden = ({ isvisible, onclose, dataorden }) => {
                 Precio Unitario:
               </StyledText>
               <StyledText color="primary">
-                {" "}
                 ${dataorden?.datosProd?.costoU ?? 0}
               </StyledText>
             </View>
@@ -97,7 +106,7 @@ export const DetalleOrden = ({ isvisible, onclose, dataorden }) => {
 
           <View style={styles.precioInstContainerSub}>
             <StyledText color="purple" fontWeight="bold">
-              Precio de compra instantanea:{" "}
+              Precio de compra instantánea:
             </StyledText>
             <StyledText color="primary">
               {dataorden?.datosProd?.costoInst === 0
@@ -105,42 +114,50 @@ export const DetalleOrden = ({ isvisible, onclose, dataorden }) => {
                 : "$" + dataorden?.datosProd?.costoInst}
             </StyledText>
           </View>
+
           <View style={styles.restantesContainer}>
             <View style={styles.restantesSubContainer}>
               <StyledText color="purple" fontWeight="bold">
-                Tipo de compra:{" "}
+                Tipo de compra:
               </StyledText>
-              {dataorden?.props.TipoCompra === "instantanea" && (
+
+              {dataorden?.props?.TipoCompra === "instantanea" && (
                 <StyledText>Instantánea</StyledText>
               )}
-              {dataorden?.props.TipoCompra === "normal" && (
+              {dataorden?.props?.TipoCompra === "normal" && (
                 <StyledText>Normal</StyledText>
               )}
             </View>
           </View>
+
           <View style={styles.secondContainer}>
             <View style={styles.secondFirstContainer}>
               <StyledText color="purple" fontWeight="bold">
                 Unidades adquiridas:
               </StyledText>
               <StyledText color="primary">
-                {dataorden?.props.Cantidad ?? ""}
+                {dataorden?.props?.Cantidad ?? ""}
               </StyledText>
             </View>
+
             <View style={styles.secondsecondContainer}>
               <StyledText color="purple" fontWeight="bold">
                 Total:
               </StyledText>
-              <StyledText color="primary">${dataorden?.props.Total}</StyledText>
-            </View>
-          </View>
-          <View style={styles.descripcionContainer}>
-            <View style={styles.descripcionSubContainer}>
               <StyledText color="primary">
-                {dataorden?.oferta?.Descripcion}
+                ${dataorden?.props?.Total ?? ""}
               </StyledText>
             </View>
           </View>
+
+          <View style={styles.descripcionContainer}>
+            <View style={styles.descripcionSubContainer}>
+              <StyledText color="primary">
+                {dataorden?.oferta?.Descripcion ?? ""}
+              </StyledText>
+            </View>
+          </View>
+
           <View style={styles.restantesContainer}>
             <View style={styles.restantesSubContainer}>
               <StyledText color="primary">
@@ -149,12 +166,34 @@ export const DetalleOrden = ({ isvisible, onclose, dataorden }) => {
               </StyledText>
             </View>
           </View>
+
           <View style={styles.borderLine} />
         </ScrollView>
       </View>
     </Modal>
   );
 };
+
+/* -------------------- PROP TYPES -------------------- */
+DetalleOrden.propTypes = {
+  isvisible: PropTypes.bool.isRequired,
+  onclose: PropTypes.func.isRequired,
+
+  dataorden: PropTypes.shape({
+    props: PropTypes.object,
+    datosProd: PropTypes.object,
+    producto: PropTypes.object,
+    comprador: PropTypes.object,
+    proveedor: PropTypes.object,
+    oferta: PropTypes.object,
+  }),
+};
+
+DetalleOrden.defaultProps = {
+  dataorden: {},
+};
+
+/* -------------------- STYLES -------------------- */
 
 const styles = StyleSheet.create({
   container: {
@@ -164,10 +203,7 @@ const styles = StyleSheet.create({
     margin: "3%",
     marginTop: "20%",
     shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.23,
     shadowRadius: 2.62,
     elevation: 4,
@@ -180,9 +216,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   textName: { margin: 5, width: "70%" },
-  iconBehave: {
-    padding: 14,
-  },
+
   firstContainer: {
     padding: 5,
     borderWidth: 1,
@@ -192,8 +226,13 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   imageContainer: { width: "30%", height: 90, resizeMode: "contain" },
+
   starsContainer: { alignItems: "center", width: "70%" },
-  secondContainer: { marginVertical: 10, flexDirection: "row" },
+
+  secondContainer: {
+    marginVertical: 10,
+    flexDirection: "row",
+  },
   secondFirstContainer: {
     width: "55%",
     padding: 5,
@@ -210,7 +249,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 8,
     borderBottomRightRadius: 8,
   },
-  // precioInstaContainer: { marginVertical: 10, flexDirection: "row" },
+
   precioInstContainerSub: {
     marginVertical: 10,
     width: "100%",
@@ -220,27 +259,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     flexDirection: "row",
   },
-  unidadesFechaContainer: {
-    marginVertical: 10,
-    flexDirection: "row",
-    width: "100%",
-  },
-  unidadesContainer: {
-    width: "48%",
-    padding: 5,
-    borderWidth: 1,
-    borderColor: theme.colors.lightGray3,
-    borderTopLeftRadius: 8,
-    borderBottomLeftRadius: 8,
-  },
-  fechaCierreContainer: {
-    width: "52%",
-    padding: 5,
-    borderWidth: 1,
-    borderColor: theme.colors.lightGray3,
-    borderTopRightRadius: 8,
-    borderBottomRightRadius: 8,
-  },
+
   descripcionContainer: {
     marginVertical: 10,
     flexDirection: "row",
@@ -253,18 +272,8 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.lightGray3,
     borderRadius: 8,
   },
-  progesoContainer: { marginVertical: 10, flexDirection: "row" },
-  progresoSubContainer: {
-    width: "100%",
-    padding: 5,
-    borderWidth: 1,
-    alignItems: "center",
-    borderColor: theme.colors.lightGray3,
-    borderRadius: 8,
-  },
-  restantesContainer: {
-    marginVertical: 10,
-  },
+
+  restantesContainer: { marginVertical: 10 },
   restantesSubContainer: {
     width: "100%",
     padding: 5,
@@ -272,14 +281,13 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.lightGray3,
     borderRadius: 8,
   },
-  botonesContainer: {
-    flexDirection: "row",
-    width: "100%",
-    justifyContent: "space-evenly",
-  },
+
   borderLine: {
     borderBottomColor: theme.colors.primary,
     borderBottomWidth: StyleSheet.hairlineWidth,
     marginTop: 5,
   },
 });
+
+export default DetalleOrden;
+

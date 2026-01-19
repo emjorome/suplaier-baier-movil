@@ -17,7 +17,7 @@ const useOfertas = () => {
   };
   useEffect(() => {
     getOfertasProv();
-    // eslint-disable-next-line
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authState]);
   return {ofertasProv}
 }

@@ -10,6 +10,7 @@ import theme from "../../theme";
 import StyledText from "../../styles/StyledText";
 import StyledTextInput from "../../styles/StyledTextInput";
 import UploadImage from "../../styles/UploadImage";
+import PropTypes from "prop-types";
 
 const initialValues = {
   user: "",
@@ -31,6 +32,7 @@ const FormikInputValue = ({
   ...props
 }) => {
   const [field, meta, helpers] = useField(name);
+
   return (
     <View>
       <Octicons
@@ -39,13 +41,16 @@ const FormikInputValue = ({
         size={30}
         color={theme.colors.purple1}
       />
+
       <StyledText style={styles.textInputLabel}>{label}</StyledText>
+
       <StyledTextInput
         error={meta.error}
         value={field.value}
         onChangeText={(value) => helpers.setValue(value)}
         {...props}
       />
+
       {isPassword && (
         <TouchableOpacity
           style={styles.rightIcon}
@@ -68,9 +73,19 @@ const FormikInputValue = ({
   );
 };
 
+// ⭐ SONARQUBE FIX: Props validation
+FormikInputValue.propTypes = {
+  name: PropTypes.string.isRequired,
+  icon: PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired,
+  isPassword: PropTypes.bool,
+  hidePassword: PropTypes.bool,
+  setHidePassword: PropTypes.func,
+  isDropDown: PropTypes.bool,
+};
+
 const RegistroCompradorPage = () => {
   const [hidePassword, setHidePassword] = useState(true);
-  // const [credentialsIncorrect, setCredentialsIncorrect] = useState(false);
   const navigate = useNavigate();
 
   const getRegResponse = async (username, password, mail, nombre, tipoID) => {
@@ -82,15 +97,17 @@ const RegistroCompradorPage = () => {
       pass: password,
       correo: mail,
     };
-    const resp = await global.fetch(`${apiUrl}/usuarios`, {
+
+    // ⭐ SONARQUBE FIX: usar globalThis
+    const resp = await globalThis.fetch(`${apiUrl}/usuarios`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(body),
     });
+
     const data = await resp.json();
-    console.log("peticion");
 
     if (data.length === 0) {
       return null;
@@ -101,12 +118,12 @@ const RegistroCompradorPage = () => {
 
   const onSubmitRegister = (values) => {
     getRegResponse(
-      values.nombre,
-      values.tipoID,
       values.user,
       values.password,
-      values.mail
-    ).then(
+      values.mail,
+      values.nombre,
+      values.tipoID
+    ).then(() =>
       navigate("/login", {
         replace: true,
       })
@@ -124,6 +141,7 @@ const RegistroCompradorPage = () => {
         >
           Registrar Comprador
         </StyledText>
+
         <StyledText
           color="tertiary"
           fontWeight="normal"
@@ -132,104 +150,107 @@ const RegistroCompradorPage = () => {
         >
           Por favor ingresa los siguientes datos
         </StyledText>
+
         <Formik
           validationSchema={loginValidationSchema}
           initialValues={initialValues}
-          onSubmit={(values) => onSubmitRegister(values)}
+          onSubmit={onSubmitRegister}
         >
-          {({ handleSubmit }) => {
-            return (
-              <View style={styles.form}>
-                <FormikInputValue
-                  name="user"
-                  icon="person"
-                  placeholder="Usuario"
-                  placeholderTextColor={theme.colors.gray1}
-                  label="Usuario"
-                />
-                <FormikInputValue
-                  name="password"
-                  icon="lock"
-                  placeholder="**********"
-                  placeholderTextColor={theme.colors.gray1}
-                  secureTextEntry={hidePassword}
-                  label="Contraseña"
-                  isPassword
-                  hidePassword={hidePassword}
-                  setHidePassword={setHidePassword}
-                />
+          {({ handleSubmit }) => (
+            <View style={styles.form}>
+              <FormikInputValue
+                name="user"
+                icon="person"
+                placeholder="Usuario"
+                placeholderTextColor={theme.colors.gray1}
+                label="Usuario"
+              />
 
-                <FormikInputValue
-                  name="password2"
-                  icon="lock"
-                  placeholder="**********"
-                  placeholderTextColor={theme.colors.gray1}
-                  secureTextEntry={hidePassword}
-                  label="Confirmar Contraseña"
-                  isPassword
-                  hidePassword={hidePassword}
-                  setHidePassword={setHidePassword}
-                />
+              <FormikInputValue
+                name="password"
+                icon="lock"
+                placeholder="**********"
+                placeholderTextColor={theme.colors.gray1}
+                secureTextEntry={hidePassword}
+                label="Contraseña"
+                isPassword
+                hidePassword={hidePassword}
+                setHidePassword={setHidePassword}
+              />
 
-                <FormikInputValue
-                  name="mail"
-                  icon="mail"
-                  placeholder="Correo@ejemplo.com"
-                  placeholderTextColor={theme.colors.gray1}
-                  label="Correo Electrónico"
-                />
+              <FormikInputValue
+                name="password2"
+                icon="lock"
+                placeholder="**********"
+                placeholderTextColor={theme.colors.gray1}
+                secureTextEntry={hidePassword}
+                label="Confirmar Contraseña"
+                isPassword
+                hidePassword={hidePassword}
+                setHidePassword={setHidePassword}
+              />
 
-                <FormikInputValue
-                  name="name"
-                  icon="note"
-                  placeholder="Nombre"
-                  placeholderTextColor={theme.colors.gray1}
-                  label="Nombre Completo"
-                />
+              <FormikInputValue
+                name="mail"
+                icon="mail"
+                placeholder="Correo@ejemplo.com"
+                placeholderTextColor={theme.colors.gray1}
+                label="Correo Electrónico"
+              />
 
-                <FormikInputValue
-                  name="tipoID"
-                  icon="id-badge"
-                  placeholder="000000000"
-                  placeholderTextColor={theme.colors.gray1}
-                  label="ID"
-                  isDropDown
-                />
+              <FormikInputValue
+                name="nombre"
+                icon="note"
+                placeholder="Nombre Completo"
+                placeholderTextColor={theme.colors.gray1}
+                label="Nombre Completo"
+              />
 
-                <StyledText style={styles.textInputLabel}>Imagen</StyledText>
-                <UploadImage />
-                <View style={styles.borderLine} />
-                <TouchableOpacity
-                  style={styles.registerButton}
-                  onPress={handleSubmit}
+              <FormikInputValue
+                name="tipoID"
+                icon="id-badge"
+                placeholder="000000000"
+                placeholderTextColor={theme.colors.gray1}
+                label="ID"
+                isDropDown
+              />
+
+              <StyledText style={styles.textInputLabel}>Imagen</StyledText>
+              <UploadImage />
+
+              <View style={styles.borderLine} />
+
+              <TouchableOpacity
+                style={styles.registerButton}
+                onPress={handleSubmit}
+              >
+                <StyledText
+                  fontSize="subheading"
+                  color="secondary"
+                  fontWeight="bold"
                 >
-                  <StyledText
-                    fontSize="subheading"
-                    color="secondary"
-                    fontWeight="bold"
-                  >
-                    Registrarse
-                  </StyledText>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.cancelButton}
-                  onPress={() => {
-                    navigate("/login", {
-                      replace: true,
-                    });
-                  }}
+                  Registrarse
+                </StyledText>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() =>
+                  navigate("/login", {
+                    replace: true,
+                  })
+                }
+              >
+                <StyledText
+                  fontSize="subheading"
+                  color="secondary"
+                  fontWeight="bold"
                 >
-                  <StyledText
-                    fontSize="subheading"
-                    color="secondary"
-                    fontWeight="bold"
-                  >
-                    Cancelar
-                  </StyledText>
-                </TouchableOpacity>
-              </View>
-            );
-          }}
+                  Cancelar
+                </StyledText>
+              </TouchableOpacity>
+            </View>
+          )}
         </Formik>
       </ScrollView>
 
@@ -237,6 +258,10 @@ const RegistroCompradorPage = () => {
     </>
   );
 };
+
+
+RegistroCompradorPage.propTypes = {};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -248,12 +273,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-  },
-  pageLogo: {
-    width: 307.98,
-    height: 61.14,
-    marginTop: 60,
-    marginBottom: 5,
   },
   pageTitle: {
     textAlign: "center",
@@ -285,15 +304,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     zIndex: 1,
   },
-  submitButton: {
-    padding: 15,
-    backgroundColor: theme.colors.lightblue1,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 5,
-    marginVertical: 5,
-    height: 60,
-  },
   registerButton: {
     padding: 15,
     backgroundColor: theme.colors.lightgreen,
@@ -308,31 +318,10 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
     marginVertical: 15,
   },
-  bottomText: {
-    marginTop: 10,
-    textAlign: "center",
-  },
   errorText: {
     color: theme.colors.red,
     marginBottom: 10,
     marginTop: -13,
-  },
-  extraView: {
-    justifyContent: "center",
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 5,
-  },
-  extraText: {
-    justifyContent: "center",
-    alignContent: "center",
-  },
-  extraTextLink: {
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  textLink: {
-    color: theme.colors.purple,
   },
   cancelButton: {
     padding: 15,
